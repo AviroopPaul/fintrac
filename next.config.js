@@ -4,6 +4,9 @@ const nextConfig = {
     // Don't run ESLint during build
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    serverActions: true,
+  },
 };
 
 module.exports = nextConfig;
