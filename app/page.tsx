@@ -180,7 +180,13 @@ export default function HomePage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email"
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-cyan-500 focus:outline-none backdrop-blur-sm transition-all text-lg"
+                    className="w-full px-6 py-4 
+                    bg-blue-950/70 backdrop-blur-sm
+                    border border-blue-500/30 text-white rounded-xl 
+                    placeholder:text-gray-400
+                    focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 
+                    hover:bg-gray-900/70 
+                    transition-all text-lg"
                   />
                 </div>
                 <div className="relative">
@@ -189,18 +195,20 @@ export default function HomePage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-cyan-500 focus:outline-none backdrop-blur-sm transition-all text-lg"
+                    className="w-full px-6 py-4 
+                    bg-blue-950/70 backdrop-blur-sm
+                    border border-blue-500/30 text-white rounded-xl 
+                    placeholder:text-gray-400
+                    focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 
+                    hover:bg-gray-900/70 
+                    transition-all text-lg"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                   >
-                    {showPassword ? (
-                      <FiEyeOff size={20} />
-                    ) : (
-                      <FiEye size={20} />
-                    )}
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                   </button>
                 </div>
                 {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -280,30 +288,6 @@ export default function HomePage() {
                   </>
                 )}
               </button>
-            </div>
-
-            <div className="mt-6 md:mt-8">
-              <div className="relative mb-4 md:mb-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/10"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 backdrop-blur-sm bg-white/5 text-gray-400">
-                    Or
-                  </span>
-                </div>
-              </div>
-
-              <Link
-                href="/tracker?mode=guest"
-                className="inline-block w-full px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold 
-                text-white bg-gradient-to-br from-blue-900/40 to-blue-950/40 
-                border border-blue-500/30 rounded-xl 
-                hover:from-blue-900/50 hover:to-blue-950/50 hover:border-blue-500/50 
-                transform hover:scale-105 transition-all duration-200 text-center"
-              >
-                Continue as Guest
-              </Link>
             </div>
           </div>
         </div>
