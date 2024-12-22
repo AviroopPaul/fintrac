@@ -62,7 +62,7 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const auth = await verifyAuth();
@@ -78,7 +78,7 @@ export async function DELETE(
 
     // Convert string IDs to ObjectId
     const user_id = new mongoose.Types.ObjectId(auth.userId);
-    const transactionId = new mongoose.Types.ObjectId(params.id);
+    const transactionId = new mongoose.Types.ObjectId(context.params.id);
 
     const transaction = await Transaction.findOneAndDelete({
       _id: transactionId,
@@ -86,14 +86,14 @@ export async function DELETE(
     });
 
     if (!transaction) {
-      console.log(`Transaction ${params.id} not found for user ${auth.userId}`);
+      console.log(`Transaction ${context.params.id} not found for user ${auth.userId}`);
       return NextResponse.json(
         { message: "Transaction not found" },
         { status: 404 }
       );
     }
 
-    console.log(`Deleted transaction ${params.id} for user ${auth.userId}`);
+    console.log(`Deleted transaction ${context.params.id} for user ${auth.userId}`);
     return NextResponse.json({ message: "Transaction deleted" });
   } catch (error) {
     console.error("Error deleting transaction:", error);
