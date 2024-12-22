@@ -1,8 +1,9 @@
 "use client";
-
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+// Create a separate component for the part that uses useSearchParams
+function LoginContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
 
@@ -16,5 +17,14 @@ export default function LoginPage() {
       )}
       {/* Rest of your login form */}
     </div>
+  );
+}
+
+// Main component with Suspense
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }
