@@ -1,13 +1,24 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import User from '@/models/User';
-import { sign } from 'jsonwebtoken';
+import { User } from '@/models/User';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: Request) {
   try {
     await dbConnect();
     
     const { email, password } = await req.json();
+
+    // Check if user is already logged in
+    const session = await getServerSession(authOptions);
+    if (session) {
+      return NextResponse.json(
+        { message: 'Already authenticated' },
+        { status: 400 }
+      );
+    }
 
     // Validate input
     if (!email || !password) {
@@ -18,7 +29,7 @@ export async function POST(req: Request) {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email }).select('_id');
     if (existingUser) {
       return NextResponse.json(
         { message: 'Email already registered' },
@@ -26,31 +37,29 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create new user
+    // Hash the password with explicit string conversion
+    const hashedPassword = await bcrypt.hash(String(password), 10);
+
+    // Create new user with hashed password
     const user = await User.create({
       email,
-      password,
+      password: hashedPassword,
+      provider: 'credentials'
     });
 
-    // Create JWT token
-    const token = sign(
-      { userId: user._id },
-      process.env.NEXT_PUBLIC_JWT_SECRET || 'tracker_secret_key',
-      { expiresIn: '7d' }
-    );
-
-    // Set HTTP-only cookie
+    // Clear any existing sessions before returning
     const response = NextResponse.json(
-      { message: 'User created successfully' },
+      {
+        message: 'User created successfully',
+        userId: user._id.toString(),
+      },
       { status: 201 }
     );
-    
-    response.cookies.set('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
+
+    // Clear any existing authentication cookies
+    response.cookies.delete('next-auth.session-token');
+    response.cookies.delete('next-auth.csrf-token');
+    response.cookies.delete('__Secure-next-auth.session-token');
 
     return response;
 

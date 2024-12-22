@@ -22,27 +22,32 @@ export default function HomePage() {
 
     try {
       const endpoint = isLogin ? "/api/auth/login" : "/api/auth/signup";
+      console.log("Submitting to:", endpoint, { email, password });
+
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ 
+          email, 
+          password,
+          provider: "credentials"
+        }),
       });
 
       const data = await response.json();
+      console.log("Response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Authentication failed");
       }
 
-      if (isLogin) {
-        localStorage.setItem("token", data.token);
-      }
-
-      // If successful, redirect to tracker
       router.push("/tracker");
-    } catch (err: Error | unknown) {
+      router.refresh();
+
+    } catch (err: any) {
+      console.error("Auth error:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
@@ -50,9 +55,9 @@ export default function HomePage() {
   };
 
   const handleGoogleSignIn = () => {
-    signIn('google', { 
-      callbackUrl: '/tracker',
-      redirect: true
+    signIn("google", {
+      callbackUrl: "/tracker",
+      redirect: true,
     });
   };
 
@@ -186,7 +191,11 @@ export default function HomePage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                   >
-                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                    {showPassword ? (
+                      <FiEyeOff size={20} />
+                    ) : (
+                      <FiEye size={20} />
+                    )}
                   </button>
                 </div>
                 {error && <p className="text-red-500 text-sm">{error}</p>}

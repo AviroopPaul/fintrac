@@ -1,88 +1,104 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/dbConnect";
-import { ObjectId } from "mongodb";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import dbConnect from "@/lib/dbConnect";
+import { Transaction } from "@/models/Transaction";
+import { verifyAuth } from "@/lib/auth";
+import mongoose from "mongoose";
 
 export async function PUT(
-  request: Request,
+  req: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const auth = await verifyAuth();
+    
+    if (!auth) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { message: "Unauthorized" },
         { status: 401 }
       );
     }
 
-    const { id } = params;
-    const { description, amount, category, date, type } = await request.json();
+    await dbConnect();
+    const body = await req.json();
 
-    const db = await connectToDatabase();
-    const collection = await db.collection("transactions");
+    // Convert string IDs to ObjectId
+    const userId = new mongoose.Types.ObjectId(auth.userId);
+    const transactionId = new mongoose.Types.ObjectId(params.id);
 
-    const result = await collection.updateOne(
+    const transaction = await Transaction.findOneAndUpdate(
       { 
-        _id: new ObjectId(id),
-        user_id: session.user.id // Ensure users can only update their own transactions
+        _id: transactionId, 
+        userId 
       },
-      { $set: { description, amount, category, date, type } }
+      {
+        ...body,
+        date: new Date(body.date), // Ensure date is properly formatted
+        userId // Ensure userId stays the same
+      },
+      { 
+        new: true,
+        runValidators: true
+      }
     );
 
-    if (result.matchedCount === 0) {
+    if (!transaction) {
+      console.log(`Transaction ${params.id} not found for user ${auth.userId}`);
       return NextResponse.json(
-        { error: "Transaction not found" },
+        { message: "Transaction not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ message: "Transaction updated successfully" });
+    console.log(`Updated transaction ${params.id} for user ${auth.userId}`);
+    return NextResponse.json(transaction);
   } catch (error) {
     console.error("Error updating transaction:", error);
     return NextResponse.json(
-      { error: "Failed to update transaction" },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }
 }
 
 export async function DELETE(
-  request: Request,
+  req: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const auth = await verifyAuth();
+    
+    if (!auth) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { message: "Unauthorized" },
         { status: 401 }
       );
     }
 
-    const { id } = params;
+    await dbConnect();
 
-    const db = await connectToDatabase();
-    const collection = await db.collection("transactions");
+    // Convert string IDs to ObjectId
+    const userId = new mongoose.Types.ObjectId(auth.userId);
+    const transactionId = new mongoose.Types.ObjectId(params.id);
 
-    const result = await collection.deleteOne({ 
-      _id: new ObjectId(id),
-      user_id: session.user.id // Ensure users can only delete their own transactions
+    const transaction = await Transaction.findOneAndDelete({
+      _id: transactionId,
+      userId
     });
 
-    if (result.deletedCount === 0) {
+    if (!transaction) {
+      console.log(`Transaction ${params.id} not found for user ${auth.userId}`);
       return NextResponse.json(
-        { error: "Transaction not found" },
+        { message: "Transaction not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ message: "Transaction deleted successfully" });
+    console.log(`Deleted transaction ${params.id} for user ${auth.userId}`);
+    return NextResponse.json({ message: "Transaction deleted" });
   } catch (error) {
     console.error("Error deleting transaction:", error);
     return NextResponse.json(
-      { error: "Failed to delete transaction" },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }

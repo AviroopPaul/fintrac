@@ -5,7 +5,48 @@ import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import bcrypt from "bcryptjs";
 import dbConnect from "./dbConnect";
-import { User } from "@/models/User"; // We'll create this model next
+import { User } from "@/models/User";
+import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
+import { getServerSession } from "next-auth";
+
+export interface JWTPayload {
+  userId: string;
+  iat: number;
+  exp: number;
+}
+
+export async function verifyAuth() {
+  try {
+    // First check NextAuth session
+    const session = await getServerSession(authOptions);
+    if (session?.user?.id) {
+      console.log("Found NextAuth session with userId:", session.user.id);
+      return { userId: session.user.id };
+    }
+
+    // If no NextAuth session, check JWT
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token");
+
+    if (!token) {
+      console.log("No token found in cookies");
+      return null;
+    }
+
+    const decoded = jwt.verify(
+      token.value,
+      process.env.NEXT_PUBLIC_JWT_SECRET || "tracker_secret_key"
+    ) as JWTPayload;
+
+    console.log("Decoded JWT token userId:", decoded.userId);
+    return decoded;
+  } catch (error) {
+    console.error("Auth verification error:", error);
+    return null;
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
@@ -18,7 +59,7 @@ export const authOptions: NextAuthOptions = {
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -47,8 +88,8 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
         };
-      }
-    })
+      },
+    }),
   ],
   session: {
     strategy: "jwt",
@@ -77,4 +118,4 @@ export const authOptions: NextAuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-}; 
+};

@@ -27,7 +27,11 @@ export default function TransactionSection({
         <h2 className="text-lg font-semibold mb-4 text-white">
           Recent Transactions
         </h2>
-        <TransactionList transactions={transactions} onDelete={onDelete} onUpdate={onUpdate} />
+        <TransactionList
+          transactions={transactions}
+          onDelete={onDelete}
+          onUpdate={onUpdate}
+        />
       </div>
     </div>
   );

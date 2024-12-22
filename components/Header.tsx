@@ -18,8 +18,11 @@ export default function Header() {
   
   const handleLogout = async () => {
     try {
-      await signOut({ redirect: false });
-      router.push('/');
+      // Simplified logout - let NextAuth handle everything
+      await signOut({ 
+        redirect: true,
+        callbackUrl: '/' 
+      });
     } catch (error) {
       console.error('Logout error:', error);
     }

@@ -9,8 +9,17 @@ const userSchema = new mongoose.Schema(
       unique: true,
       required: [true, "Email is required"],
     },
-    password: String,
+    password: {
+      type: String,
+      required: [true, "Please provide a password"],
+      minlength: [6, "Password must be at least 6 characters long"],
+      select: false
+    },
     image: String,
+    provider: {
+      type: String,
+      default: "credentials",
+    },
   },
   {
     timestamps: true,
@@ -31,5 +40,14 @@ userSchema.pre("save", async function (next) {
     next(error as Error);
   }
 });
+
+// Method to compare password
+userSchema.methods.comparePassword = async function (candidatePassword: string) {
+  try {
+    return await bcrypt.compare(candidatePassword, this.password);
+  } catch (error) {
+    return false;
+  }
+};
 
 export const User = mongoose.models.User || mongoose.model("User", userSchema);

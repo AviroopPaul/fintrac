@@ -1,85 +1,78 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/dbConnect";
-import { COLLECTION_NAME } from "@/models/Transaction";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import dbConnect from "@/lib/dbConnect";
+import { Transaction } from "@/models/Transaction";
+import { verifyAuth } from "@/lib/auth";
+import mongoose from "mongoose";
 
-export async function POST(request: Request) {
+export async function GET() {
   try {
-    const db = await connectToDatabase();
-    const data = await request.json();
-
-    const session = await getServerSession(authOptions);
+    const auth = await verifyAuth();
     
-    // Get user_id from session or use guest mode
-    let user_id: string;
-
-    if (data.mode === "guest" || !session?.user) {
-      console.log("Using guest mode");
-      user_id = "-1";
-    } else {
-      user_id = session.user.id; // Assuming your session user object has an id field
-      console.log("Successfully authenticated user:", user_id);
+    if (!auth?.userId) {
+      console.log("Auth verification failed or no userId present");
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    const transaction = {
-      ...data,
-      user_id,
-      date: new Date(data.date),
-    };
+    console.log("Auth successful, userId:", auth.userId);
 
-    const result = await db.collection(COLLECTION_NAME).insertOne(transaction);
-    return NextResponse.json({
-      ...transaction,
-      _id: result.insertedId.toString(),
-    });
+    await dbConnect();
+    console.log("Database connected");
+
+    // Use userId directly as string
+    const user_id = auth.userId;
+    console.log("Using user_id:", user_id);
+
+    // Add explicit query logging
+    console.log("Executing query with filter:", { user_id });
+    
+    const transactions = await Transaction.find({ user_id })
+      .sort({ date: -1 })
+      .lean();
+
+    console.log("Raw transactions result:", JSON.stringify(transactions, null, 2));
+    return NextResponse.json(transactions);
   } catch (error) {
-    console.error("Failed to create transaction:", error);
+    console.error("Detailed error in GET /api/transactions:", error);
     return NextResponse.json(
-      { error: "Failed to create transaction" },
+      { message: "Internal server error", error: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: Request) {
+export async function POST(req: Request) {
   try {
-    const db = await connectToDatabase();
-    const collection = db.collection("transactions");
-
-    const { searchParams } = new URL(request.url);
-    const mode = searchParams.get("mode");
-
-    const session = await getServerSession(authOptions);
-
-    // Enhanced debug logging
-    console.log("Session check:", {
-      exists: !!session,
-      mode: mode,
-      user: session?.user?.email,
-    });
-
-    // Get user_id from session or use guest mode
-    let user_id: string;
-
-    if (mode === "guest" || !session?.user) {
-      console.log("Using guest mode");
-      user_id = "-1";
-    } else {
-      user_id = session.user.id;
-      console.log("Successfully authenticated user:", user_id);
+    const auth = await verifyAuth();
+    
+    if (!auth?.userId) {
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    const transactions = await collection
-      .find({ user_id })
-      .sort({ date: -1 })
-      .toArray();
+    await dbConnect();
+    const body = await req.json();
 
-    return NextResponse.json(transactions);
+    // Use userId directly as string
+    const user_id = auth.userId;
+
+    // Add user_id to the transaction
+    const transaction = await Transaction.create({
+      ...body,
+      user_id,
+      date: new Date(body.date)
+    });
+
+    console.log(`Created transaction for user ${user_id}:`, transaction);
+    return NextResponse.json(transaction, { status: 201 });
   } catch (error) {
-    console.error("Failed to fetch transactions:", error);
+    console.error("Error creating transaction:", error);
     return NextResponse.json(
-      { error: "Failed to fetch transactions" },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }

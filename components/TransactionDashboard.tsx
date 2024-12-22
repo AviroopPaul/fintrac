@@ -15,7 +15,7 @@ import SummaryCards from "./SummaryCards";
 import ChartSection from "./ChartSection";
 import TransactionSection from "./TransactionSection";
 import { Transaction } from "@/models/Transaction";
-import { StarIcon } from '@heroicons/react/24/outline';
+import { StarIcon } from "@heroicons/react/24/outline";
 
 ChartJS.register(
   ArcElement,
@@ -41,6 +41,7 @@ interface AnalysisResult {
 export default function TransactionDashboard({
   initialTransactions,
 }: TransactionDashboardProps) {
+  console.log('TransactionDashboard received initialTransactions:', initialTransactions);
   const [transactions, setTransactions] = useState(initialTransactions);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     // Default to current month
@@ -57,6 +58,7 @@ export default function TransactionDashboard({
   // Filter transactions by selected month
   const filteredTransactions = useMemo(() => {
     return transactions.filter((transaction) => {
+      // Ensure we parse the date string from MongoDB correctly
       const transactionDate = new Date(transaction.date);
       const transactionMonth = `${transactionDate.getFullYear()}-${String(
         transactionDate.getMonth() + 1
@@ -126,6 +128,7 @@ export default function TransactionDashboard({
     try {
       const response = await fetch(`/api/transactions/${id}`, {
         method: "DELETE",
+        credentials: 'include'
       });
 
       if (!response.ok) {
@@ -151,12 +154,14 @@ export default function TransactionDashboard({
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: 'include',
           body: JSON.stringify({
             description: updatedTransaction.description,
             amount: updatedTransaction.amount,
             category: updatedTransaction.category,
-            date: updatedTransaction.date,
+            date: updatedTransaction.date, // This will be in ISO string format
             type: updatedTransaction.type,
+            // Don't send user_id as it should be handled by the API
           }),
         }
       );
@@ -182,22 +187,23 @@ export default function TransactionDashboard({
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     try {
-      const response = await fetch('/api/analysis', {
-        method: 'POST',
+      const response = await fetch("/api/analysis", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
+        credentials: 'include',
         body: JSON.stringify({ transactions: filteredTransactions }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get analysis');
+        throw new Error("Failed to get analysis");
       }
 
       const result = await response.json();
       setAnalysis(result);
     } catch (error) {
-      console.error('Error getting analysis:', error);
+      console.error("Error getting analysis:", error);
     } finally {
       setIsAnalyzing(false);
     }
@@ -222,7 +228,7 @@ export default function TransactionDashboard({
                 Analyzing
               </span>
             ) : (
-              'Analyse with AI'
+              "Analyse with AI"
             )}
           </button>
           <input
