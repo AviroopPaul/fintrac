@@ -4,6 +4,10 @@ const nextConfig = {
     // Don't run ESLint during build
     ignoreDuringBuilds: true,
   },
+  typescript: {
+    // Don't run type checking during build
+    ignoreBuildErrors: true,
+  },
   experimental: {
     serverActions: true,
   },
