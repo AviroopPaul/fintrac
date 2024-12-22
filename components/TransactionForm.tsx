@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Transaction } from '@/models/Transaction';
 import {
   FaUtensils,
   FaBus,
@@ -14,15 +15,6 @@ import {
   FaGraduationCap,
   FaQuestionCircle,
 } from "react-icons/fa";
-
-interface Transaction {
-  id: number;
-  description: string;
-  amount: number;
-  category: string;
-  type: 'expense' | 'income';
-  date: string;
-}
 
 interface TransactionFormProps {
   onAdd: (transaction: Transaction) => void;

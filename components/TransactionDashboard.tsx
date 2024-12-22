@@ -14,7 +14,7 @@ import {
 import SummaryCards from "./SummaryCards";
 import ChartSection from "./ChartSection";
 import TransactionSection from "./TransactionSection";
-import { Transaction } from "@/types/transaction";
+import { Transaction } from "@/models/Transaction";
 
 ChartJS.register(
   ArcElement,

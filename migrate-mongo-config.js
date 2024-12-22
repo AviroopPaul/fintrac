@@ -1,6 +1,6 @@
 // Load environment variables if not in production
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config({ path: '.env.local' });
+  import('dotenv').then(dotenv => dotenv.config({ path: '.env.local' }));
 }
 
 const config = {
@@ -17,4 +17,4 @@ const config = {
   migrationFileExtension: ".js",
 };
 
-module.exports = config; 
+export default config; 

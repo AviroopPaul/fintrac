@@ -1,6 +1,6 @@
 import TransactionForm from "./TransactionForm";
 import TransactionList from "./TransactionList";
-import { Transaction } from "@/types/transaction";
+import { Transaction } from "@/models/Transaction";
 
 interface TransactionSectionProps {
   transactions: Transaction[];

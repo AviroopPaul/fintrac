@@ -1,13 +1,13 @@
 import { connectToDatabase } from "../lib/mongodb";
-import { USERS_COLLECTION } from "../models/User";
 import { COLLECTION_NAME } from "../models/Transaction";
-import { ObjectId } from "mongodb";
+
+const USERS_COLLECTION_NAME = "users";
 
 async function migrate() {
   const db = await connectToDatabase();
 
   // Create users collection and add Aviroop
-  const result = await db.collection(USERS_COLLECTION).insertOne({
+  const result = await db.collection(USERS_COLLECTION_NAME).insertOne({
     name: "Aviroop",
     created_at: new Date(),
   });

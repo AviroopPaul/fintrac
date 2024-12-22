@@ -7,14 +7,12 @@ import { cookies } from 'next/headers';
 
 // Helper function to get token from either cookies or Authorization header
 async function getToken() {
-  const headersList = headers();
-  const cookieStore = cookies();
+  const headersList = await headers();
+  const cookieStore = await cookies();
   
-  // Check Authorization header first
   const authHeader = headersList.get('Authorization');
   const headerToken = authHeader?.replace('Bearer ', '');
   
-  // Check cookie if no header token
   const cookieToken = cookieStore.get('token')?.value;
   
   return headerToken || cookieToken;

@@ -36,8 +36,8 @@ export default function HomePage() {
 
       // If successful, redirect to tracker
       router.push('/tracker');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 

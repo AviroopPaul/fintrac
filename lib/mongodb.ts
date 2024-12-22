@@ -13,6 +13,7 @@ interface GlobalMongoDB {
 }
 
 declare global {
+  // eslint-disable-next-line no-var
   var mongodb: GlobalMongoDB;
 }
 
