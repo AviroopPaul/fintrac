@@ -15,6 +15,7 @@ import SummaryCards from "./SummaryCards";
 import ChartSection from "./ChartSection";
 import TransactionSection from "./TransactionSection";
 import { Transaction } from "@/models/Transaction";
+import { StarIcon } from '@heroicons/react/24/outline';
 
 ChartJS.register(
   ArcElement,
@@ -30,6 +31,13 @@ interface TransactionDashboardProps {
   initialTransactions: Transaction[];
 }
 
+interface AnalysisResult {
+  patterns: string[];
+  savingsSuggestions: string[];
+  unusualActivity: string[];
+  advice: string[];
+}
+
 export default function TransactionDashboard({
   initialTransactions,
 }: TransactionDashboardProps) {
@@ -42,6 +50,9 @@ export default function TransactionDashboard({
       "0"
     )}`;
   });
+
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
 
   // Filter transactions by selected month
   const filteredTransactions = useMemo(() => {
@@ -168,19 +179,126 @@ export default function TransactionDashboard({
     }
   };
 
+  const handleAnalyze = async () => {
+    setIsAnalyzing(true);
+    try {
+      const response = await fetch('/api/analysis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ transactions: filteredTransactions }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get analysis');
+      }
+
+      const result = await response.json();
+      setAnalysis(result);
+    } catch (error) {
+      console.error('Error getting analysis:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 bg-slate-900 min-h-screen">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-white">
           Financial Dashboard - {formattedMonth}
         </h1>
-        <input
-          type="month"
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-          className="px-4 py-2 rounded bg-slate-800 text-white border border-slate-700 w-full sm:w-auto"
-        />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleAnalyze}
+            disabled={isAnalyzing}
+            className="w-68 max-md:w-80 max-lg:w-48 max-md:h-10 flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-blue-600/20 backdrop-blur-sm border border-blue-500/30 hover:bg-blue-600/30 hover:border-blue-400/50 transition-all duration-300 text-blue-300 disabled:opacity-50 shadow-[0_0_15px_rgba(59,130,246,0.2)] text-sm sm:text-base"
+          >
+            <StarIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            {isAnalyzing ? (
+              <span className="flex items-center gap-1 sm:gap-2">
+                <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                Analyzing
+              </span>
+            ) : (
+              'Analyse with AI'
+            )}
+          </button>
+          <input
+            type="month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="px-4 py-2 rounded bg-slate-800 text-white border border-slate-700 w-full sm:w-auto focus:ring-2 focus:ring-blue-500 focus:border-blue-500 [color-scheme:dark]"
+          />
+        </div>
       </div>
+      {analysis && (
+        <div className="mb-8 p-6 rounded-xl bg-slate-800/40 backdrop-blur-md border border-slate-700/50 shadow-[0_0_25px_rgba(15,23,42,0.3)]">
+          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <StarIcon className="h-6 w-6 text-blue-400" />
+            AI Analysis Results
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-700/50 backdrop-blur-sm">
+              <h3 className="text-lg font-semibold text-blue-400 mb-3 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                Spending Patterns
+              </h3>
+              <ul className="space-y-2 text-slate-300">
+                {analysis.patterns.map((pattern, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="text-blue-400/70">•</span>
+                    {pattern}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-700/50 backdrop-blur-sm">
+              <h3 className="text-lg font-semibold text-green-400 mb-3 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                Savings Suggestions
+              </h3>
+              <ul className="space-y-2 text-slate-300">
+                {analysis.savingsSuggestions.map((suggestion, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="text-green-400/70">•</span>
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-700/50 backdrop-blur-sm">
+              <h3 className="text-lg font-semibold text-yellow-400 mb-3 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+                Unusual Activity
+              </h3>
+              <ul className="space-y-2 text-slate-300">
+                {analysis.unusualActivity.map((activity, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="text-yellow-400/70">•</span>
+                    {activity}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-700/50 backdrop-blur-sm">
+              <h3 className="text-lg font-semibold text-purple-400 mb-3 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-purple-400"></div>
+                Financial Advice
+              </h3>
+              <ul className="space-y-2 text-slate-300">
+                {analysis.advice.map((tip, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="text-purple-400/70">•</span>
+                    {tip}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
       <SummaryCards {...summary} />
       <ChartSection categoryData={categoryData} />
       <TransactionSection

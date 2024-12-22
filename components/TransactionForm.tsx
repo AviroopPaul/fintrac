@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 import { Transaction } from '@/models/Transaction';
 import {
   FaUtensils,
@@ -27,45 +29,56 @@ const categoryConfig: {
   };
 } = {
   'Food & Dining': {
-    colors: "bg-orange-100 text-orange-700",
+    colors: "bg-orange-400/20 text-orange-300",
     icon: FaUtensils,
   },
   'Transportation': {
-    colors: "bg-blue-100 text-blue-700",
+    colors: "bg-blue-400/20 text-blue-300",
     icon: FaBus,
   },
   'Shopping': {
-    colors: "bg-pink-100 text-pink-700",
+    colors: "bg-pink-400/20 text-pink-300",
     icon: FaShoppingBag,
   },
   'Bills & Utilities': {
-    colors: "bg-red-100 text-red-700",
+    colors: "bg-red-400/20 text-red-300",
     icon: FaFileInvoiceDollar,
   },
   'Entertainment': {
-    colors: "bg-purple-100 text-purple-700",
+    colors: "bg-purple-400/20 text-purple-300",
     icon: FaGamepad,
   },
   'Healthcare': {
-    colors: "bg-green-100 text-green-700",
+    colors: "bg-emerald-400/20 text-emerald-300",
     icon: FaMedkit,
   },
   'Investments': {
-    colors: "bg-green-100 text-green-700",
+    colors: "bg-green-400/20 text-green-300",
     icon: FaPiggyBank,
   },
   'Income': {
-    colors: "bg-green-100 text-green-700",
+    colors: "bg-teal-400/20 text-teal-300",
     icon: FaMoneyBillWave,
   },
   'Education': {
-    colors: "bg-yellow-100 text-yellow-700",
+    colors: "bg-yellow-400/20 text-yellow-300",
     icon: FaGraduationCap,
   },
   'Other': {
-    colors: "bg-gray-100 text-gray-700",
+    colors: "bg-gray-400/20 text-gray-300",
     icon: FaQuestionCircle,
   },
+};
+
+const typeConfig = {
+  'expense': {
+    colors: "bg-red-400/20 text-red-300",
+    label: "Expense"
+  },
+  'income': {
+    colors: "bg-green-400/20 text-green-300",
+    label: "Income"
+  }
 };
 
 export default function TransactionForm({ onAdd }: TransactionFormProps) {
@@ -75,7 +88,7 @@ export default function TransactionForm({ onAdd }: TransactionFormProps) {
     amount: '',
     category: '',
     type: 'expense',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date()
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,7 +105,7 @@ export default function TransactionForm({ onAdd }: TransactionFormProps) {
           amount: parseFloat(formData.amount),
           category: formData.category,
           type: formData.type as 'expense' | 'income',
-          date: formData.date
+          date: formData.date.toISOString()
         }),
       });
 
@@ -108,7 +121,7 @@ export default function TransactionForm({ onAdd }: TransactionFormProps) {
         amount: '',
         category: '',
         type: 'expense',
-        date: new Date().toISOString().split('T')[0]
+        date: new Date()
       });
 
       router.refresh();
@@ -119,89 +132,103 @@ export default function TransactionForm({ onAdd }: TransactionFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label className="block text-sm font-medium text-gray-300">Type</label>
-        <select
-          value={formData.type}
-          onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-          className="mt-1 block w-full h-10 rounded-md border-gray-600 bg-slate-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        >
-          <option value="expense">Expense</option>
-          <option value="income">Income</option>
-        </select>
+        <label className="block text-sm font-medium text-white/80 mb-2">Type</label>
+        <div className="flex gap-3 mt-1">
+          {Object.entries(typeConfig).map(([type, config]) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => setFormData({ ...formData, type })}
+              className={`px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 flex-1 justify-center backdrop-blur-md transition-all duration-300 border-2 ${
+                formData.type === type
+                  ? type === 'expense' 
+                    ? 'bg-red-400/10 border-red-400/50 text-red-300 shadow-[inset_0_0_20px_rgba(248,113,113,0.15)]'
+                    : 'bg-green-400/10 border-green-400/50 text-green-300 shadow-[inset_0_0_20px_rgba(74,222,128,0.15)]'
+                  : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20'
+              }`}
+            >
+              {config.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-300">Description</label>
+      <div className="relative">
+        <label className="block text-sm font-medium text-white/80 mb-2">Description</label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="mt-1 block w-full h-24 rounded-md border-gray-600 bg-slate-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 resize-none"
+          className="mt-1 block w-full h-24 rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-md text-white/90 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] focus:border-blue-400/50 focus:ring-blue-400/20 resize-none transition-all duration-300"
           required
         />
+        <div className="absolute -z-10 inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-xl blur-xl" />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium  text-gray-300">Amount (₹)</label>
+      <div className="relative">
+        <label className="block text-sm font-medium text-white/80 mb-2">Amount (₹)</label>
         <div className="relative mt-1">
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-white/50">
             ₹
           </span>
           <input
             type="number"
             value={formData.amount}
             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-            className="pl-7 block w-full h-10 rounded-md border-gray-600 bg-slate-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="pl-7 block w-full h-12 rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-md text-white/90 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] focus:border-blue-400/50 focus:ring-blue-400/20 transition-all duration-300"
             required
           />
+          <div className="absolute -z-10 inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-xl blur-xl" />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
+        <label className="block text-sm font-medium text-white/80 mb-2">Category</label>
         <div className="flex flex-wrap gap-2">
           {Object.entries(categoryConfig).map(([category, config]) => (
             <button
               key={category}
               type="button"
               onClick={() => setFormData({ ...formData, category })}
-              className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 ${
+              className={`px-4 py-2 rounded-xl text-sm flex items-center gap-2 backdrop-blur-md transition-all duration-300 border-2 ${
                 formData.category === category
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                  ? `${config.colors} border-current shadow-[inset_0_0_20px_rgba(255,255,255,0.1)]`
+                  : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20'
               }`}
             >
               {React.createElement(config.icon, {
-                className: "w-3 h-3"
+                className: "w-4 h-4"
               })}
               {category}
             </button>
           ))}
         </div>
-        <input
-          type="hidden"
-          value={formData.category}
-          required
-        />
+        <input type="hidden" value={formData.category} required />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-300">Date</label>
-        <input
-          type="date"
-          value={formData.date}
-          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-          className="mt-1 block w-full h-10 rounded-md border-gray-600 bg-slate-700 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+      <div className="relative">
+        <label className="block text-sm font-medium text-white/80 mb-2">Date</label>
+        <DatePicker
+          selected={formData.date}
+          onChange={(date: Date | null) => date && setFormData({ ...formData, date })}
+          className="block w-full h-12 rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-md text-white/90 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] focus:border-blue-400/50 focus:ring-blue-400/20 px-3 transition-all duration-300"
+          dateFormat="MMMM d, yyyy"
           required
+          showPopperArrow={false}
+          calendarClassName="glass-calendar"
+          wrapperClassName="w-full"
+          popperClassName="glass-calendar-popper"
         />
+        <div className="absolute -z-10 inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-xl blur-xl" />
       </div>
 
       <button
         type="submit"
-        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/25"
+        className="w-full bg-gradient-to-br from-blue-500 to-violet-500 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-violet-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-slate-800 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/25 backdrop-blur-md relative overflow-hidden group"
       >
-        Add Transaction
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-400/0 to-violet-400/0 group-hover:from-blue-400/10 group-hover:to-violet-400/10 transition-all duration-300" />
+        <span className="relative">Add Transaction</span>
       </button>
     </form>
   );

@@ -1,0 +1,36 @@
+.dark-calendar {
+  @apply bg-slate-800 border border-slate-600 text-white !important;
+}
+
+.dark-calendar .react-datepicker__header {
+  @apply bg-slate-700 border-slate-600 !important;
+}
+
+.dark-calendar .react-datepicker__current-month,
+.dark-calendar .react-datepicker__day-name {
+  @apply text-white !important;
+}
+
+.dark-calendar .react-datepicker__day {
+  @apply text-white hover:bg-slate-600 !important;
+}
+
+.dark-calendar .react-datepicker__day--selected {
+  @apply bg-blue-500 hover:bg-blue-600 !important;
+}
+
+.dark-calendar .react-datepicker__day--keyboard-selected {
+  @apply bg-blue-500/50 hover:bg-blue-600 !important;
+}
+
+.dark-calendar .react-datepicker__day--outside-month {
+  @apply text-slate-500 !important;
+}
+
+.dark-calendar .react-datepicker__navigation-icon::before {
+  @apply border-white !important;
+}
+
+.dark-calendar-popper {
+  @apply z-50;
+} 
