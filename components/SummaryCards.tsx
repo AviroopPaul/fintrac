@@ -24,12 +24,11 @@ export default function SummaryCards({ totalIncome, totalExpenses, savings }: Su
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div className="relative overflow-hidden rounded-xl backdrop-blur-md 
-        bg-gradient-to-br from-white/10 to-white/5 
-        border-2 border-emerald-400
-        shadow-[inset_0_0_20px_rgba(34,197,94,0.15)]
-        p-6 hover:border-emerald-300 hover:shadow-emerald-500/20 transition-all duration-300 group">
-        <div className="absolute inset-0 bg-green-900/5 backdrop-blur-xl" />
+      <div className="relative overflow-hidden rounded-xl 
+        bg-gradient-to-br from-emerald-900/40 to-emerald-950/40
+        border border-emerald-500/30
+        p-6 hover:from-emerald-900/50 hover:to-emerald-950/50 
+        hover:border-emerald-500/50 transition-all duration-300 group">
         <div className="relative z-10">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold text-emerald-300">Total Income</h2>
@@ -48,30 +47,26 @@ export default function SummaryCards({ totalIncome, totalExpenses, savings }: Su
             {showIncome ? formatIndianNumber(totalIncome) : maskNumber(totalIncome)}
           </p>
         </div>
-        <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-emerald-400/20 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative overflow-hidden rounded-xl backdrop-blur-md 
-        bg-gradient-to-br from-white/10 to-white/5 
-        border-2 border-rose-400
-        shadow-[inset_0_0_20px_rgba(239,68,68,0.15)]
-        p-6 hover:border-rose-300 hover:shadow-rose-500/20 transition-all duration-300 group">
-        <div className="absolute inset-0 bg-red-900/5 backdrop-blur-xl" />
+      <div className="relative overflow-hidden rounded-xl 
+        bg-gradient-to-br from-rose-900/40 to-rose-950/40
+        border border-rose-500/30
+        p-6 hover:from-rose-900/50 hover:to-rose-950/50 
+        hover:border-rose-500/50 transition-all duration-300 group">
         <div className="relative z-10">
           <h2 className="text-lg font-semibold text-rose-300">Total Expenses</h2>
           <p className="text-3xl font-bold text-white/90 mt-2 group-hover:scale-105 transition-transform">
             {formatIndianNumber(totalExpenses)}
           </p>
         </div>
-        <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-rose-400/20 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative overflow-hidden rounded-xl backdrop-blur-md 
-        bg-gradient-to-br from-white/10 to-white/5 
-        border-2 border-blue-400
-        shadow-[inset_0_0_20px_rgba(59,130,246,0.15)]
-        p-6 hover:border-blue-300 hover:shadow-blue-500/20 transition-all duration-300 group">
-        <div className="absolute inset-0 bg-blue-900/5 backdrop-blur-xl" />
+      <div className="relative overflow-hidden rounded-xl 
+        bg-gradient-to-br from-blue-900/40 to-blue-950/40
+        border border-blue-500/30
+        p-6 hover:from-blue-900/50 hover:to-blue-950/50 
+        hover:border-blue-500/50 transition-all duration-300 group">
         <div className="relative z-10">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold text-blue-300">Savings</h2>
@@ -90,7 +85,6 @@ export default function SummaryCards({ totalIncome, totalExpenses, savings }: Su
             {showSavings ? formatIndianNumber(savings) : maskNumber(savings)}
           </p>
         </div>
-        <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-blue-400/20 rounded-full blur-3xl" />
       </div>
     </div>
   );
