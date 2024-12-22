@@ -119,3 +119,22 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
+export async function getSession() {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.id) {
+    return session;
+  }
+
+  // Check JWT token as fallback
+  const auth = await verifyAuth();
+  if (auth?.userId) {
+    return {
+      user: {
+        id: auth.userId
+      }
+    };
+  }
+
+  return null;
+}
