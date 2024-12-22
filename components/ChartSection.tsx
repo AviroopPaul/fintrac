@@ -123,12 +123,11 @@ export default function ChartSection({ categoryData }: ChartSectionProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <div className="relative overflow-hidden rounded-xl backdrop-blur-md 
-        bg-gradient-to-br from-white/10 to-white/5 
-        border-2 border-blue-400/50
-        shadow-[inset_0_0_20px_rgba(59,130,246,0.15)]
-        p-6 hover:border-blue-300 hover:shadow-blue-500/20 transition-all duration-300">
-        <div className="absolute inset-0 bg-blue-900/5 backdrop-blur-xl" />
+      <div className="relative overflow-hidden rounded-xl 
+        bg-gradient-to-br from-blue-900/40 to-blue-950/40 
+        border border-blue-500/30
+        p-6 hover:from-blue-900/50 hover:to-blue-950/50 
+        hover:border-blue-500/50 transition-all duration-300">
         <div className="relative z-10">
           <h2 className="text-lg font-semibold text-blue-300">Expense Categories</h2>
           <div className="flex flex-col md:flex-row items-center mt-4">
@@ -153,22 +152,19 @@ export default function ChartSection({ categoryData }: ChartSectionProps) {
             </div>
           </div>
         </div>
-        <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-blue-400/20 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative overflow-hidden rounded-xl backdrop-blur-md 
-        bg-gradient-to-br from-white/10 to-white/5 
-        border-2 border-violet-400/50
-        shadow-[inset_0_0_20px_rgba(139,92,246,0.15)]
-        p-6 hover:border-violet-300 hover:shadow-violet-500/20 transition-all duration-300">
-        <div className="absolute inset-0 bg-violet-900/5 backdrop-blur-xl" />
+      <div className="relative overflow-hidden rounded-xl 
+        bg-gradient-to-br from-violet-900/40 to-violet-950/40 
+        border border-violet-500/30
+        p-6 hover:from-violet-900/50 hover:to-violet-950/50 
+        hover:border-violet-500/50 transition-all duration-300">
         <div className="relative z-10">
           <h2 className="text-lg font-semibold text-violet-300">Monthly Trend</h2>
           <div className="h-64 mt-4">
             <Bar data={enhancedCategoryData} options={barChartOptions} />
           </div>
         </div>
-        <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-violet-400/20 rounded-full blur-3xl" />
       </div>
     </div>
   );
