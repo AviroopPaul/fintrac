@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -17,22 +18,8 @@ export default function Header() {
   
   const handleLogout = async () => {
     try {
-      // Call the logout API endpoint
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Logout failed');
-      }
-
-      // Redirect to home page
+      await signOut({ redirect: false });
       router.push('/');
-      // Force a refresh to ensure the app state is reset
-      router.refresh();
     } catch (error) {
       console.error('Logout error:', error);
     }

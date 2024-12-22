@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Transaction } from '@/models/Transaction';
 import Groq from 'groq-sdk';
+import { getSession } from "@/lib/auth";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -25,7 +26,23 @@ Please provide the analysis in this JSON format:
 
 export async function POST(request: Request) {
   try {
+    const session = await getSession();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { transactions } = await request.json();
+
+    // Verify that these transactions belong to the authenticated user
+    if (!transactions.every((t: Transaction) => t.user_id === session.user.id)) {
+      return NextResponse.json(
+        { error: "Unauthorized access to transactions" },
+        { status: 403 }
+      );
+    }
 
     const completion = await groq.chat.completions.create({
       messages: [

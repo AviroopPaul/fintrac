@@ -1,12 +1,22 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/mongodb";
+import connectToDatabase from "@/lib/dbConnect";
 import { ObjectId } from "mongodb";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = params;
     const { description, amount, category, date, type } = await request.json();
 
@@ -14,7 +24,10 @@ export async function PUT(
     const collection = await db.collection("transactions");
 
     const result = await collection.updateOne(
-      { _id: new ObjectId(id) },
+      { 
+        _id: new ObjectId(id),
+        user_id: session.user.id // Ensure users can only update their own transactions
+      },
       { $set: { description, amount, category, date, type } }
     );
 
@@ -40,12 +53,23 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = params;
 
     const db = await connectToDatabase();
     const collection = await db.collection("transactions");
 
-    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+    const result = await collection.deleteOne({ 
+      _id: new ObjectId(id),
+      user_id: session.user.id // Ensure users can only delete their own transactions
+    });
 
     if (result.deletedCount === 0) {
       return NextResponse.json(

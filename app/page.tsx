@@ -2,6 +2,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { FcGoogle } from "react-icons/fc";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import { signIn } from "next-auth/react";
 
 export default function HomePage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -9,6 +12,7 @@ export default function HomePage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
@@ -43,6 +47,13 @@ export default function HomePage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleSignIn = () => {
+    signIn('google', { 
+      callbackUrl: '/tracker',
+      redirect: true
+    });
   };
 
   return (
@@ -162,14 +173,21 @@ export default function HomePage() {
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-cyan-500 focus:outline-none backdrop-blur-sm transition-all text-lg"
                   />
                 </div>
-                <div>
+                <div className="relative">
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white rounded-xl focus:ring-2 focus:ring-cyan-500 focus:outline-none backdrop-blur-sm transition-all text-lg"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  >
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
                 </div>
                 {error && <p className="text-red-500 text-sm">{error}</p>}
                 <button
@@ -211,24 +229,12 @@ export default function HomePage() {
               </form>
 
               <button
-                disabled
+                onClick={handleGoogleSignIn}
                 className="w-full px-8 py-4 text-lg font-semibold text-white/70 bg-white/5 rounded-xl border border-white/10 
-                flex items-center justify-center gap-3 relative group cursor-not-allowed"
+                flex items-center justify-center gap-3 relative group hover:bg-white/10 transition-all duration-200"
               >
-                <svg
-                  className="w-5 h-5 opacity-70"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81Z"
-                  />
-                </svg>
+                <FcGoogle className="w-5 h-5" />
                 Continue with Google
-                <span className="absolute right-3 text-xs bg-gray-800 px-2 py-1 rounded-full text-cyan-400">
-                  Coming Soon
-                </span>
               </button>
             </div>
 

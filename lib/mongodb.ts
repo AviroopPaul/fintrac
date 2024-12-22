@@ -1,59 +1,28 @@
-import { MongoClient, Db } from "mongodb";
+import { MongoClient } from "mongodb";
 
 if (!process.env.NEXT_PUBLIC_MONGODB_URI) {
-  throw new Error("MONGODB_URI not found. Please check your .env.local file");
+  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
 }
 
-const MONGODB_URI: string = process.env.NEXT_PUBLIC_MONGODB_URI;
+const uri = process.env.NEXT_PUBLIC_MONGODB_URI as string;
+const options = {};
 
-interface GlobalMongoDB {
-  client: MongoClient | null;
-  promise: Promise<MongoClient> | null;
-  db: Db | null;
-}
+let client;
+let clientPromise: Promise<MongoClient>;
 
-declare global {
-  // eslint-disable-next-line no-var
-  var mongodb: GlobalMongoDB;
-}
+if (process.env.NODE_ENV === "development") {
+  let globalWithMongo = global as typeof globalThis & {
+    _mongoClientPromise?: Promise<MongoClient>;
+  };
 
-// Initialize the cached object with a default value
-const cached: GlobalMongoDB = global.mongodb || {
-  client: null,
-  promise: null,
-  db: null,
-};
-
-if (!global.mongodb) {
-  global.mongodb = cached;
-}
-
-export async function connectToDatabase() {
-  if (cached.db) {
-    console.log("Using existing database connection");
-    return cached.db;
+  if (!globalWithMongo._mongoClientPromise) {
+    client = new MongoClient(uri, options);
+    globalWithMongo._mongoClientPromise = client.connect();
   }
-
-  if (!cached.promise) {
-    const opts = {
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    };
-
-    console.log("Creating new database connection...");
-    cached.promise = new MongoClient(MONGODB_URI, opts).connect();
-  }
-
-  try {
-    cached.client = await cached.promise;
-    cached.db = cached.client.db();
-    console.log("Successfully connected to database");
-  } catch (e) {
-    console.error("Failed to connect to database:", e);
-    cached.promise = null;
-    throw e;
-  }
-
-  return cached.db;
+  clientPromise = globalWithMongo._mongoClientPromise;
+} else {
+  client = new MongoClient(uri, options);
+  clientPromise = client.connect();
 }
+
+export default clientPromise;
