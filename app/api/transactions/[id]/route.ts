@@ -22,18 +22,18 @@ export async function PUT(
     const body = await req.json();
 
     // Convert string IDs to ObjectId
-    const userId = new mongoose.Types.ObjectId(auth.userId);
+    const user_id = new mongoose.Types.ObjectId(auth.userId);
     const transactionId = new mongoose.Types.ObjectId(params.id);
 
     const transaction = await Transaction.findOneAndUpdate(
       { 
         _id: transactionId, 
-        userId 
+        user_id 
       },
       {
         ...body,
         date: new Date(body.date), // Ensure date is properly formatted
-        userId // Ensure userId stays the same
+        user_id // Ensure user_id stays the same
       },
       { 
         new: true,
@@ -77,12 +77,12 @@ export async function DELETE(
     await dbConnect();
 
     // Convert string IDs to ObjectId
-    const userId = new mongoose.Types.ObjectId(auth.userId);
+    const user_id = new mongoose.Types.ObjectId(auth.userId);
     const transactionId = new mongoose.Types.ObjectId(params.id);
 
     const transaction = await Transaction.findOneAndDelete({
       _id: transactionId,
-      userId
+      user_id
     });
 
     if (!transaction) {
