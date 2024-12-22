@@ -3,6 +3,7 @@ import dbConnect from "@/lib/dbConnect";
 import { User } from "@/models/User";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: Request) {
   try {
@@ -32,31 +33,23 @@ export async function POST(req: Request) {
         );
       }
 
-      // Import bcrypt at the top level instead
-      const bcrypt = require('bcryptjs');
-      
-      // Add more detailed debug logging
-    
-      
-      // Hash the input password with the same salt used for stored password
-      const hashedInputPassword = await bcrypt.hash(String(password), 10);
-      
-      // Compare the hashed input with stored hash
-      const isMatch = hashedInputPassword === user.password;
+      try {
+        // Use the model's comparePassword method
+        const isMatch = await user.comparePassword(String(password));
+        console.log('Password verification result:', isMatch);
 
-
-      console.log('Attempting password comparison');
-      console.log('Input password:', hashedInputPassword);
-      console.log('Stored password hash:', user.password);
-      console.log('Input password length:', password.length);
-      console.log('Stored hash length:', user.password.length);
-      
-      console.log('Password match result:', isMatch);
-
-      if (!isMatch) {
+        if (!isMatch) {
+          console.log('Password verification failed');
+          return NextResponse.json(
+            { message: "Invalid credentials" },
+            { status: 401 }
+          );
+        }
+      } catch (error) {
+        console.error('Password comparison error:', error);
         return NextResponse.json(
-          { message: "Invalid credentials" },
-          { status: 401 }
+          { message: "Error verifying credentials" },
+          { status: 500 }
         );
       }
 

@@ -40,12 +40,16 @@ export async function POST(req: Request) {
     // Hash the password with explicit string conversion
     const hashedPassword = await bcrypt.hash(String(password), 10);
 
+    console.log('Creating new user with email:', email);
+
     // Create new user with hashed password
     const user = await User.create({
       email,
-      password: hashedPassword,
+      password: String(password),
       provider: 'credentials'
     });
+
+    console.log('User created successfully:', user._id);
 
     // Clear any existing sessions before returning
     const response = NextResponse.json(

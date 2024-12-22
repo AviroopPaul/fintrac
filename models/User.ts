@@ -33,21 +33,17 @@ userSchema.pre("save", async function (next) {
   }
 
   try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password!, salt);
+    this.password = await bcrypt.hash(this.password!, 10);
     next();
   } catch (error) {
     next(error as Error);
   }
 });
 
-// Method to compare password
-userSchema.methods.comparePassword = async function (candidatePassword: string) {
-  try {
-    return await bcrypt.compare(candidatePassword, this.password);
-  } catch (error) {
-    return false;
-  }
+// Method to compare password - simplified and more robust
+userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+  if (!this.password) return false;
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
 export const User = mongoose.models.User || mongoose.model("User", userSchema);
