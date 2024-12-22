@@ -225,10 +225,13 @@ export default function TransactionForm({ onAdd }: TransactionFormProps) {
 
       <button
         type="submit"
-        className="w-full bg-gradient-to-br from-blue-500 to-violet-500 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-violet-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-slate-800 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/25 backdrop-blur-md relative overflow-hidden group"
+        className="w-full relative border-2 border-purple-400/30 bg-white/5 backdrop-blur-md text-white py-3 px-4 rounded-xl 
+        hover:bg-white/10 hover:border-purple-400/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 
+        focus:ring-offset-2 focus:ring-offset-slate-800 transform transition-all duration-300 
+        hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/25 group overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-400/0 to-violet-400/0 group-hover:from-blue-400/10 group-hover:to-violet-400/10 transition-all duration-300" />
-        <span className="relative">Add Transaction</span>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 group-hover:from-blue-500/20 group-hover:to-purple-500/20 transition-all duration-300" />
+        <span className="relative font-medium">Add Transaction</span>
       </button>
     </form>
   );

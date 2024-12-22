@@ -7,7 +7,11 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      animation: {
+        float: 'float 10s infinite ease-in-out',
+      },
+    },
   },
   plugins: [],
 };

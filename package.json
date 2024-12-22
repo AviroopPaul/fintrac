@@ -13,6 +13,7 @@
     "migrate:down": "migrate-mongo down"
   },
   "dependencies": {
+    "@auth/mongodb-adapter": "^3.7.4",
     "@heroicons/react": "^2.2.0",
     "@types/react-datepicker": "^6.2.0",
     "bcryptjs": "^2.4.3",
@@ -25,6 +26,7 @@
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.2",
     "next": "15.1.2",
+    "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.2.0",
     "react-datepicker": "^7.5.0",
