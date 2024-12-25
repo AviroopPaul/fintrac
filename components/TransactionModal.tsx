@@ -1,6 +1,10 @@
 import { Transaction } from "../models/Transaction";
 import { useState, useEffect } from "react";
-import { categoryConfig, CategoryConfig, defaultCategories } from '@/models/categoryConfig';
+import {
+  categoryConfig,
+  CategoryConfig,
+  defaultCategories,
+} from "@/models/categoryConfig";
 import { FaTimes } from "react-icons/fa";
 
 interface TransactionModalProps {
@@ -10,7 +14,7 @@ interface TransactionModalProps {
   onSave: (updatedTransaction: Transaction) => void;
 }
 
-type CategoryType = typeof defaultCategories[number];
+type CategoryType = (typeof defaultCategories)[number];
 
 export default function TransactionModal({
   transaction,
@@ -29,9 +33,12 @@ export default function TransactionModal({
     if (transaction) {
       setDescription(transaction.description);
       setAmount(transaction.amount.toString());
-      setCategory(transaction.category || "");
+      setCategory(transaction.category || "Other");
       setType(transaction.type || "expense");
-      if (transaction.category && !defaultCategories.includes(transaction.category)) {
+      if (
+        transaction.category &&
+        !defaultCategories.includes(transaction.category)
+      ) {
         setShowCustomCategory(true);
       }
     }

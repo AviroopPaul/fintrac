@@ -18,6 +18,7 @@ import { Transaction } from "@/models/Transaction";
 import { StarIcon } from "@heroicons/react/24/outline";
 import CurrencyConverter from "./CurrencyConverter";
 import { useSession } from "next-auth/react";
+import WelcomeGuide from './WelcomeGuide';
 
 ChartJS.register(
   ArcElement,
@@ -60,6 +61,7 @@ export default function TransactionDashboard({
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [showWelcomeGuide, setShowWelcomeGuide] = useState(true);
 
   // Filter transactions by selected month
   const filteredTransactions = useMemo(() => {
@@ -323,6 +325,12 @@ export default function TransactionDashboard({
         onDelete={handleDelete}
         onUpdate={handleUpdate}
       />
+      {transactions.length === 0 && (
+        <WelcomeGuide
+          isOpen={showWelcomeGuide}
+          onClose={() => setShowWelcomeGuide(false)}
+        />
+      )}
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Transaction } from "@/models/Transaction";
-import { FaTimes } from "react-icons/fa";
+import { FaTimes, FaQuestionCircle } from "react-icons/fa";
 import { categoryConfig, CategoryConfig } from "@/models/categoryConfig";
 
 interface TransactionFormProps {
