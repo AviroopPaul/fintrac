@@ -24,9 +24,6 @@ export default function TransactionSection({
         <TransactionForm onAdd={onAddTransaction} />
       </div>
       <div className="bg-slate-800 p-6 rounded-lg shadow">
-        <h2 className="text-lg font-semibold mb-4 text-white">
-          Recent Transactions
-        </h2>
         <TransactionList
           transactions={transactions}
           onDelete={onDelete}

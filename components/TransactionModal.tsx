@@ -1,5 +1,7 @@
-import { Transaction } from '../models/Transaction';
-import { useState, useEffect } from 'react';
+import { Transaction } from "../models/Transaction";
+import { useState, useEffect } from "react";
+import { categoryConfig, CategoryConfig, defaultCategories } from '@/models/categoryConfig';
+import { FaTimes } from "react-icons/fa";
 
 interface TransactionModalProps {
   transaction: Transaction | null;
@@ -8,36 +10,30 @@ interface TransactionModalProps {
   onSave: (updatedTransaction: Transaction) => void;
 }
 
-export default function TransactionModal({ 
-  transaction, 
-  isOpen, 
-  onClose, 
-  onSave 
-}: TransactionModalProps) {
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('');
-  const [type, setType] = useState<'expense' | 'income'>('expense');
+type CategoryType = typeof defaultCategories[number];
 
-  const categories = [
-    'Food & Dining',
-    'Transportation',
-    'Shopping',
-    'Bills & Utilities',
-    'Entertainment',
-    'Healthcare',
-    'Investments',
-    'Income',
-    'Education',
-    'Other'
-  ];
+export default function TransactionModal({
+  transaction,
+  isOpen,
+  onClose,
+  onSave,
+}: TransactionModalProps) {
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState<CategoryType | string>("Other");
+  const [type, setType] = useState<"expense" | "income">("expense");
+  const [showCustomCategory, setShowCustomCategory] = useState(false);
+  const [categories, setCategories] = useState<CategoryConfig>(categoryConfig);
 
   useEffect(() => {
     if (transaction) {
       setDescription(transaction.description);
       setAmount(transaction.amount.toString());
-      setCategory(transaction.category || '');
-      setType(transaction.type || 'expense');
+      setCategory(transaction.category || "");
+      setType(transaction.type || "expense");
+      if (transaction.category && !defaultCategories.includes(transaction.category)) {
+        setShowCustomCategory(true);
+      }
     }
   }, [transaction]);
 
@@ -46,13 +42,13 @@ export default function TransactionModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!transaction) return;
-    
+
     onSave({
       ...transaction,
       description,
       amount: parseFloat(amount),
       category,
-      type
+      type,
     });
     onClose();
   };
@@ -61,7 +57,7 @@ export default function TransactionModal({
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-md shadow-xl">
         <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-          {transaction ? 'Edit Transaction' : 'View Transaction'}
+          {transaction ? "Edit Transaction" : "View Transaction"}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -78,7 +74,7 @@ export default function TransactionModal({
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
               Category
@@ -92,8 +88,10 @@ export default function TransactionModal({
               required
             >
               <option value="">Select a category</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+              {Object.keys(categoryConfig).map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
               ))}
             </select>
           </div>
@@ -104,7 +102,7 @@ export default function TransactionModal({
             </label>
             <select
               value={type}
-              onChange={(e) => setType(e.target.value as 'expense' | 'income')}
+              onChange={(e) => setType(e.target.value as "expense" | "income")}
               className="w-full p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 
                 bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
@@ -153,4 +151,4 @@ export default function TransactionModal({
       </div>
     </div>
   );
-} 
+}

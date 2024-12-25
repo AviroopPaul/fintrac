@@ -1,42 +1,5 @@
 import { Pie, Bar } from "react-chartjs-2";
-
-const generateColors = (count: number) => {
-  const baseColors = [
-    'rgba(34, 197, 94, 0.6)',    // emerald
-    'rgba(59, 130, 246, 0.6)',   // blue
-    'rgba(239, 68, 68, 0.6)',    // rose
-    'rgba(168, 85, 247, 0.6)',   // purple
-    'rgba(251, 146, 60, 0.6)',   // orange
-    'rgba(14, 165, 233, 0.6)',   // sky
-    'rgba(236, 72, 153, 0.6)',   // pink
-    'rgba(45, 212, 191, 0.6)',   // teal
-    'rgba(234, 179, 8, 0.6)',    // yellow
-    'rgba(139, 92, 246, 0.6)',   // violet
-  ];
-
-  const baseGlowColors = [
-    'rgba(34, 197, 94, 0.3)',
-    'rgba(59, 130, 246, 0.3)',
-    'rgba(239, 68, 68, 0.3)',
-    'rgba(168, 85, 247, 0.3)',
-    'rgba(251, 146, 60, 0.3)',
-    'rgba(14, 165, 233, 0.3)',
-    'rgba(236, 72, 153, 0.3)',
-    'rgba(45, 212, 191, 0.3)',
-    'rgba(234, 179, 8, 0.3)',
-    'rgba(139, 92, 246, 0.3)',
-  ];
-
-  while (baseColors.length < count) {
-    const r = Math.floor(Math.random() * 255);
-    const g = Math.floor(Math.random() * 255);
-    const b = Math.floor(Math.random() * 255);
-    baseColors.push(`rgba(${r}, ${g}, ${b}, 0.6)`);
-    baseGlowColors.push(`rgba(${r}, ${g}, ${b}, 0.3)`);
-  }
-
-  return { colors: baseColors.slice(0, count), glowColors: baseGlowColors.slice(0, count) };
-};
+import { categoryConfig, getDefaultCategoryConfig } from '@/models/categoryConfig';
 
 interface ChartSectionProps {
   categoryData: {
@@ -49,16 +12,22 @@ interface ChartSectionProps {
 }
 
 export default function ChartSection({ categoryData }: ChartSectionProps) {
-  const { colors, glowColors } = generateColors(categoryData.labels.length);
+  const colors = categoryData.labels.map(
+    label => getDefaultCategoryConfig(label).backgroundColor
+  );
+  
+  const glowColors = colors.map(color => 
+    color?.replace('0.6', '0.3') || 'rgba(156, 163, 175, 0.3)'
+  );
 
   const enhancedCategoryData = {
     ...categoryData,
     datasets: categoryData.datasets.map((dataset) => ({
       ...dataset,
       backgroundColor: colors,
-      borderColor: colors.map(color => color.replace('0.6', '0.8')),
+      borderColor: colors.map(color => color?.replace('0.6', '0.8')),
       borderWidth: 2,
-      hoverBackgroundColor: colors.map(color => color.replace('0.6', '0.8')),
+      hoverBackgroundColor: colors.map(color => color?.replace('0.6', '0.8')),
       shadowColor: glowColors,
     })),
   };

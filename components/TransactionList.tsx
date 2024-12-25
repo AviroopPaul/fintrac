@@ -1,68 +1,18 @@
 import React from "react";
 import { useState } from "react";
 import TransactionModal from "./TransactionModal";
-import {
-  FaUtensils,
-  FaBus,
-  FaGamepad,
-  FaShoppingBag,
-  FaFileInvoiceDollar,
-  FaPiggyBank,
-  FaMoneyBillWave,
-  FaMedkit,
-  FaGraduationCap,
-  FaQuestionCircle,
-} from "react-icons/fa";
+import { FaDownload } from "react-icons/fa";
 import type { Transaction } from "@/models/Transaction";
+import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import { categoryConfig, getDefaultCategoryConfig, CategoryConfig } from '@/models/categoryConfig';
 
-// Update the categoryConfig to match TransactionForm categories
-const categoryConfig: {
-  [key: string]: {
-    colors: string;
-    icon: React.ComponentType<{ className?: string }>;
-  };
-} = {
-  "Food & Dining": {
-    colors: "bg-orange-400/20 text-orange-300",
-    icon: FaUtensils,
-  },
-  Transportation: {
-    colors: "bg-blue-400/20 text-blue-300",
-    icon: FaBus,
-  },
-  Shopping: {
-    colors: "bg-pink-400/20 text-pink-300",
-    icon: FaShoppingBag,
-  },
-  "Bills & Utilities": {
-    colors: "bg-red-400/20 text-red-300",
-    icon: FaFileInvoiceDollar,
-  },
-  Entertainment: {
-    colors: "bg-purple-400/20 text-purple-300",
-    icon: FaGamepad,
-  },
-  Healthcare: {
-    colors: "bg-emerald-400/20 text-emerald-300",
-    icon: FaMedkit,
-  },
-  Investments: {
-    colors: "bg-green-400/20 text-green-300",
-    icon: FaPiggyBank,
-  },
-  Income: {
-    colors: "bg-teal-400/20 text-teal-300",
-    icon: FaMoneyBillWave,
-  },
-  Education: {
-    colors: "bg-yellow-400/20 text-yellow-300",
-    icon: FaGraduationCap,
-  },
-  Other: {
-    colors: "bg-gray-400/20 text-gray-300",
-    icon: FaQuestionCircle,
-  },
-};
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => void;
+  }
+}
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -75,18 +25,14 @@ export default function TransactionList({
   onDelete,
   onUpdate,
 }: TransactionListProps) {
-  const [selectedTransaction, setSelectedTransaction] =
-    useState<Transaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string>("All");
+  const [showExportOptions, setShowExportOptions] = useState(false);
+  const [categories, setCategories] = useState<CategoryConfig>(categoryConfig);
 
   const getCategoryConfig = (category: string) => {
-    return (
-      categoryConfig[category] || {
-        colors: "bg-gray-100 text-gray-600",
-        icon: FaQuestionCircle,
-      }
-    );
+    return getDefaultCategoryConfig(category);
   };
 
   const filteredTransactions = transactions.filter((transaction) => {
@@ -94,35 +40,114 @@ export default function TransactionList({
     return transaction.category === categoryFilter;
   });
 
+  const exportToExcel = () => {
+    const data = transactions.map(t => ({
+      Date: new Date(t.date).toLocaleDateString(),
+      Description: t.description,
+      Category: t.category,
+      Type: t.type,
+      Amount: t.amount
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Transactions");
+    XLSX.writeFile(wb, "transactions.xlsx");
+    setShowExportOptions(false);
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    
+    const tableColumn = ["Date", "Description", "Category", "Type", "Amount"];
+    const tableRows = transactions.map(t => [
+      new Date(t.date).toLocaleDateString(),
+      t.description,
+      t.category,
+      t.type,
+      `₹${t.amount.toFixed(2)}`
+    ]);
+
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+    });
+
+    doc.save('transactions.pdf');
+    setShowExportOptions(false);
+  };
+
+  // Get unique categories from transactions
+  const uniqueCategories = Array.from(
+    new Set(transactions.map((t) => t.category))
+  );
+
   return (
     <>
-      <div className="mb-6 flex flex-wrap gap-2">
-        <button
-          onClick={() => setCategoryFilter("All")}
-          className={`px-4 py-2 rounded-xl text-sm backdrop-blur-md transition-all duration-300 border-2 ${
-            categoryFilter === "All"
-              ? "bg-blue-400/10 border-blue-400/50 text-blue-300 shadow-[inset_0_0_20px_rgba(59,130,246,0.15)]"
-              : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20"
-          }`}
-        >
-          All
-        </button>
-        {Object.entries(categoryConfig).map(([category, config]) => (
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-white/90 text-xl font-semibold">Recent Transactions</h2>
+        <div className="relative">
           <button
-            key={category}
-            onClick={() => setCategoryFilter(category)}
-            className={`px-4 py-2 rounded-xl text-sm flex items-center gap-2 backdrop-blur-md transition-all duration-300 border-2 ${
-              categoryFilter === category
-                ? `${config.colors} border-current shadow-[inset_0_0_20px_rgba(255,255,255,0.1)]`
+            onClick={() => setShowExportOptions(!showExportOptions)}
+            className="px-4 py-2 rounded-xl text-sm flex items-center gap-2 backdrop-blur-md transition-all duration-300 border-2 bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20"
+          >
+            <FaDownload className="w-4 h-4" />
+            Export
+          </button>
+          
+          {showExportOptions && (
+            <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white/10 backdrop-blur-md border border-white/20">
+              <div className="py-1">
+                <button
+                  onClick={exportToExcel}
+                  className="block w-full px-4 py-2 text-sm text-white/90 hover:bg-white/10 text-left"
+                >
+                  Download as Excel
+                </button>
+                <button
+                  onClick={exportToPDF}
+                  className="block w-full px-4 py-2 text-sm text-white/90 hover:bg-white/10 text-left"
+                >
+                  Download as PDF
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setCategoryFilter("All")}
+            className={`px-4 py-2 rounded-xl text-sm backdrop-blur-md transition-all duration-300 border-2 ${
+              categoryFilter === "All"
+                ? "bg-blue-400/10 border-blue-400/50 text-blue-300 shadow-[inset_0_0_20px_rgba(59,130,246,0.15)]"
                 : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20"
             }`}
           >
-            {React.createElement(config.icon, {
-              className: "w-4 h-4",
-            })}
-            {category}
+            All
           </button>
-        ))}
+          {uniqueCategories.map((category) => {
+            const config = getCategoryConfig(category);
+            return (
+              <button
+                key={category}
+                onClick={() => setCategoryFilter(category)}
+                className={`px-4 py-2 rounded-xl text-sm flex items-center gap-2 backdrop-blur-md transition-all duration-300 border-2 ${
+                  categoryFilter === category
+                    ? `${config.colors} border-current shadow-[inset_0_0_20px_rgba(255,255,255,0.1)]`
+                    : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20"
+                }`}
+              >
+                {React.createElement(config.icon, {
+                  className: "w-4 h-4",
+                })}
+                {category}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="relative rounded-xl overflow-hidden backdrop-blur-md border-2 border-white/10 bg-white/5">

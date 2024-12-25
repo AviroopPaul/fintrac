@@ -1,74 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { Transaction } from '@/models/Transaction';
-import {
-  FaUtensils,
-  FaBus,
-  FaGamepad,
-  FaShoppingBag,
-  FaFileInvoiceDollar,
-  FaPiggyBank,
-  FaMoneyBillWave,
-  FaMedkit,
-  FaGraduationCap,
-  FaQuestionCircle,
-} from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
+import { categoryConfig, CategoryConfig } from '@/models/categoryConfig';
 
 interface TransactionFormProps {
   onAdd: (transaction: Transaction) => void;
 }
-
-const categoryConfig: {
-  [key: string]: {
-    colors: string;
-    icon: React.ComponentType<{ className?: string }>;
-  };
-} = {
-  'Food & Dining': {
-    colors: "bg-orange-400/20 text-orange-300",
-    icon: FaUtensils,
-  },
-  'Transportation': {
-    colors: "bg-blue-400/20 text-blue-300",
-    icon: FaBus,
-  },
-  'Shopping': {
-    colors: "bg-pink-400/20 text-pink-300",
-    icon: FaShoppingBag,
-  },
-  'Bills & Utilities': {
-    colors: "bg-red-400/20 text-red-300",
-    icon: FaFileInvoiceDollar,
-  },
-  'Entertainment': {
-    colors: "bg-purple-400/20 text-purple-300",
-    icon: FaGamepad,
-  },
-  'Healthcare': {
-    colors: "bg-emerald-400/20 text-emerald-300",
-    icon: FaMedkit,
-  },
-  'Investments': {
-    colors: "bg-green-400/20 text-green-300",
-    icon: FaPiggyBank,
-  },
-  'Income': {
-    colors: "bg-teal-400/20 text-teal-300",
-    icon: FaMoneyBillWave,
-  },
-  'Education': {
-    colors: "bg-yellow-400/20 text-yellow-300",
-    icon: FaGraduationCap,
-  },
-  'Other': {
-    colors: "bg-gray-400/20 text-gray-300",
-    icon: FaQuestionCircle,
-  },
-};
 
 const typeConfig = {
   'expense': {
@@ -90,6 +32,9 @@ export default function TransactionForm({ onAdd }: TransactionFormProps) {
     type: 'expense',
     date: new Date()
   });
+  const [showCustomCategory, setShowCustomCategory] = useState(false);
+  const [customCategory, setCustomCategory] = useState('');
+  const [categories, setCategories] = useState<CategoryConfig>(categoryConfig);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,6 +73,76 @@ export default function TransactionForm({ onAdd }: TransactionFormProps) {
     } catch (error) {
       console.error('Error adding transaction:', error);
       // You might want to add error handling UI here
+    }
+  };
+
+  const handleAddCustomCategory = async () => {
+    if (customCategory.trim()) {
+      const newCategory = {
+        colors: "bg-gray-400/20 text-gray-300",
+        icon: FaQuestionCircle,
+        backgroundColor: 'rgba(156, 163, 175, 0.6)',
+      };
+
+      try {
+        const response = await fetch('/api/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            category: customCategory,
+            colors: newCategory.colors,
+            backgroundColor: newCategory.backgroundColor,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Failed to add category');
+
+        setCategories(prev => ({
+          ...prev,
+          [customCategory]: newCategory
+        }));
+        
+        setFormData(prev => ({ ...prev, category: customCategory }));
+        setShowCustomCategory(false);
+        setCustomCategory('');
+      } catch (error) {
+        console.error('Error adding category:', error);
+      }
+    }
+  };
+
+  const handleDeleteCategory = async (categoryName: string) => {
+    try {
+      const response = await fetch('/api/categories', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category: categoryName }),
+      });
+
+      if (!response.ok) throw new Error('Failed to delete category');
+
+      const newCategories = { ...categories };
+      delete newCategories[categoryName];
+      setCategories(newCategories);
+
+      if (formData.category === categoryName) {
+        setFormData(prev => ({ ...prev, category: '' }));
+      }
+    } catch (error) {
+      console.error('Error deleting category:', error);
+    }
+  };
+
+  const handleCustomCategorySubmit = () => {
+    if (customCategory.trim()) {
+      handleAddCustomCategory();
+    }
+  };
+
+  const handleCustomCategoryKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleCustomCategorySubmit();
     }
   };
 
@@ -186,25 +201,80 @@ export default function TransactionForm({ onAdd }: TransactionFormProps) {
       <div>
         <label className="block text-sm font-medium text-white/80 mb-2">Category</label>
         <div className="flex flex-wrap gap-2">
-          {Object.entries(categoryConfig).map(([category, config]) => (
-            <button
-              key={category}
-              type="button"
-              onClick={() => setFormData({ ...formData, category })}
-              className={`px-4 py-2 rounded-xl text-sm flex items-center gap-2 backdrop-blur-md transition-all duration-300 border-2 ${
-                formData.category === category
-                  ? `${config.colors} border-current shadow-[inset_0_0_20px_rgba(255,255,255,0.1)]`
-                  : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20'
-              }`}
-            >
-              {React.createElement(config.icon, {
-                className: "w-4 h-4"
-              })}
-              {category}
-            </button>
+          {Object.entries(categories).map(([category, config]) => (
+            <div key={category} className="relative group">
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, category }))}
+                className={`px-4 py-2 rounded-xl text-sm flex items-center gap-2 backdrop-blur-md transition-all duration-300 border-2 ${
+                  formData.category === category
+                    ? `${config.colors} border-current shadow-[inset_0_0_20px_rgba(255,255,255,0.1)]`
+                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20'
+                }`}
+              >
+                {React.createElement(config.icon, {
+                  className: "w-4 h-4"
+                })}
+                {category}
+              </button>
+              {category !== 'Other' && (
+                <button
+                  onClick={() => handleDeleteCategory(category)}
+                  className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  <FaTimes className="w-3 h-3" />
+                </button>
+              )}
+            </div>
           ))}
+          <button
+            type="button"
+            onClick={() => setShowCustomCategory(true)}
+            className="px-4 py-2 rounded-xl text-sm flex items-center gap-2 backdrop-blur-md transition-all duration-300 border-2 bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20"
+          >
+            + Custom
+          </button>
         </div>
-        <input type="hidden" value={formData.category} required />
+
+        {showCustomCategory && (
+          <div className="mt-3 flex gap-2">
+            <input
+              type="text"
+              value={customCategory}
+              onChange={(e) => setCustomCategory(e.target.value)}
+              onKeyPress={handleCustomCategoryKeyPress}
+              placeholder="Enter custom category"
+              className="flex-1 h-12 rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-md text-white/90 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] focus:border-blue-400/50 focus:ring-blue-400/20 px-3 transition-all duration-300"
+              autoFocus
+            />
+            <button
+              type="button"
+              onClick={handleCustomCategorySubmit}
+              className="px-4 rounded-xl border-2 border-green-400/30 bg-white/5 text-green-300 hover:bg-white/10 hover:border-green-400/50"
+              disabled={!customCategory.trim()}
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowCustomCategory(false);
+                setCustomCategory('');
+              }}
+              className="px-4 rounded-xl border-2 border-red-400/30 bg-white/5 text-red-300 hover:bg-white/10 hover:border-red-400/50"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {formData.category && !categoryConfig[formData.category] && (
+          <div className="mt-2">
+            <span className="text-sm text-white/60">
+              Selected category: <span className="text-white/90">{formData.category}</span>
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="relative">
