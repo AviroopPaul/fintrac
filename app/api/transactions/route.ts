@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     const user_id = auth.userId;
     console.log("Using user_id:", user_id);
     console.log("Body:", body);
-    
+
     const transaction = await Transaction.create({
       ...body,
       user_id,

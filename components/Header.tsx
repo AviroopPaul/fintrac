@@ -13,12 +13,11 @@ export default function Header() {
     return null;
   }
   
-  // Only show logout on authenticated pages
-  const showLogout = pathname?.startsWith('/tracker');
+  // Only show logout and navigation on authenticated pages
+  const showNav = pathname?.startsWith('/tracker') || pathname?.startsWith('/budget');
   
   const handleLogout = async () => {
     try {
-      // Simplified logout - let NextAuth handle everything
       await signOut({ 
         redirect: true,
         callbackUrl: '/' 
@@ -34,14 +33,41 @@ export default function Header() {
         rounded-full w-[100%] mx-4 md:mx-8 lg:mx-64 shadow-lg shadow-black/5">
         <div className="container mx-auto px-3 md:px-6">
           <div className="flex items-center justify-between h-14">
-            <button
-              onClick={() => window.location.reload()}
-              className="text-lg md:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500"
-            >
-              FinTrac
-            </button>
+            <div className="flex items-center gap-6">
+              <button
+                onClick={() => window.location.reload()}
+                className="text-lg md:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500"
+              >
+                FinTrac
+              </button>
+              
+              {showNav && (
+                <nav className="flex gap-4">
+                  <Link
+                    href="/tracker"
+                    className={`px-3 py-1.5 rounded-full transition-all duration-300 ${
+                      pathname === '/tracker'
+                        ? 'bg-blue-500/10 text-blue-400'
+                        : 'hover:bg-blue-500/10 text-gray-400 hover:text-blue-400'
+                    }`}
+                  >
+                    Transactions
+                  </Link>
+                  <Link
+                    href="/budget"
+                    className={`px-3 py-1.5 rounded-full transition-all duration-300 ${
+                      pathname === '/budget'
+                        ? 'bg-blue-500/10 text-blue-400'
+                        : 'hover:bg-blue-500/10 text-gray-400 hover:text-blue-400'
+                    }`}
+                  >
+                    Budget
+                  </Link>
+                </nav>
+              )}
+            </div>
             
-            {showLogout && (
+            {showNav && (
               <button
                 onClick={handleLogout}
                 className="px-3 md:px-4 py-1.5 md:py-2 text-sm font-medium text-red-400 border border-red-500/50 
