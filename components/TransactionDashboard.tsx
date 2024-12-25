@@ -16,6 +16,7 @@ import ChartSection from "./ChartSection";
 import TransactionSection from "./TransactionSection";
 import { Transaction } from "@/models/Transaction";
 import { StarIcon } from "@heroicons/react/24/outline";
+import CurrencyConverter from "./CurrencyConverter";
 
 ChartJS.register(
   ArcElement,
@@ -306,6 +307,9 @@ export default function TransactionDashboard({
         </div>
       )}
       <SummaryCards {...summary} />
+      <div className="mb-8">
+        <CurrencyConverter />
+      </div>
       <ChartSection categoryData={categoryData} />
       <TransactionSection
         transactions={filteredTransactions}
