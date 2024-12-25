@@ -122,34 +122,39 @@ export default function BudgetPage() {
   const handleDeleteTransaction = async (id: string) => {
     try {
       const response = await fetch(`/api/transactions/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
+        method: "DELETE",
+        credentials: "include",
       });
 
       if (response.ok) {
-        setAllTransactions(allTransactions.filter(t => t._id !== id));
+        setAllTransactions(allTransactions.filter((t) => t._id !== id));
       }
     } catch (error) {
-      console.error('Error deleting transaction:', error);
+      console.error("Error deleting transaction:", error);
     }
   };
 
   const handleUpdateTransaction = async (updatedTransaction: Transaction) => {
     try {
-      const response = await fetch(`/api/transactions/${updatedTransaction._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(updatedTransaction)
-      });
+      const response = await fetch(
+        `/api/transactions/${updatedTransaction._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(updatedTransaction),
+        }
+      );
 
       if (response.ok) {
-        setAllTransactions(allTransactions.map(t => 
-          t._id === updatedTransaction._id ? updatedTransaction : t
-        ));
+        setAllTransactions(
+          allTransactions.map((t) =>
+            t._id === updatedTransaction._id ? updatedTransaction : t
+          )
+        );
       }
     } catch (error) {
-      console.error('Error updating transaction:', error);
+      console.error("Error updating transaction:", error);
     }
   };
 
@@ -168,8 +173,8 @@ export default function BudgetPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <h1 className="text-2xl font-bold mb-6 text-white">
-          {session?.user?.name ? `${session.user.name}'s` : 'Monthly'} Budget
+        <h1 className="text-3xl font-bold mb-6 text-white">
+          {session?.user?.name ? `${session.user.name}'s` : "Monthly"} Budget
         </h1>
         <input
           type="month"
@@ -199,15 +204,12 @@ export default function BudgetPage() {
             onCancel={() => setIsAddingBudget(false)}
           />
 
-          <BudgetList 
-            budgets={budgets} 
-            transactions={filteredTransactions} 
-          />
+          <BudgetList budgets={budgets} transactions={filteredTransactions} />
         </div>
 
         {/* Transactions Section */}
         <div className="bg-gray-800/50 p-6 rounded-xl border border-white/10">
-          <TransactionList 
+          <TransactionList
             transactions={filteredTransactions}
             onDelete={handleDeleteTransaction}
             onUpdate={handleUpdateTransaction}

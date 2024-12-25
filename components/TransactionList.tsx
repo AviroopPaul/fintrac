@@ -3,12 +3,16 @@ import { useState } from "react";
 import TransactionModal from "./TransactionModal";
 import { FaDownload } from "react-icons/fa";
 import type { Transaction } from "@/models/Transaction";
-import * as XLSX from 'xlsx';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
-import { categoryConfig, getDefaultCategoryConfig, CategoryConfig } from '@/models/categoryConfig';
+import * as XLSX from "xlsx";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
+import {
+  categoryConfig,
+  getDefaultCategoryConfig,
+  CategoryConfig,
+} from "@/models/categoryConfig";
 
-declare module 'jspdf' {
+declare module "jspdf" {
   interface jsPDF {
     autoTable: (options: any) => void;
   }
@@ -25,7 +29,8 @@ export default function TransactionList({
   onDelete,
   onUpdate,
 }: TransactionListProps) {
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string>("All");
   const [showExportOptions, setShowExportOptions] = useState(false);
@@ -41,12 +46,12 @@ export default function TransactionList({
   });
 
   const exportToExcel = () => {
-    const data = transactions.map(t => ({
+    const data = transactions.map((t) => ({
       Date: new Date(t.date).toLocaleDateString(),
       Description: t.description,
       Category: t.category,
       Type: t.type,
-      Amount: t.amount
+      Amount: t.amount,
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);
@@ -58,14 +63,14 @@ export default function TransactionList({
 
   const exportToPDF = () => {
     const doc = new jsPDF();
-    
+
     const tableColumn = ["Date", "Description", "Category", "Type", "Amount"];
-    const tableRows = transactions.map(t => [
+    const tableRows = transactions.map((t) => [
       new Date(t.date).toLocaleDateString(),
       t.description,
       t.category,
       t.type,
-      `₹${t.amount.toFixed(2)}`
+      `₹${t.amount.toFixed(2)}`,
     ]);
 
     doc.autoTable({
@@ -73,7 +78,7 @@ export default function TransactionList({
       body: tableRows,
     });
 
-    doc.save('transactions.pdf');
+    doc.save("transactions.pdf");
     setShowExportOptions(false);
   };
 
@@ -85,7 +90,9 @@ export default function TransactionList({
   return (
     <>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-white/90 text-base sm:text-xl font-semibold">Recent Transactions</h2>
+        <h2 className="text-white/90 text-base sm:text-xl font-semibold">
+          Recent Transactions
+        </h2>
         <div className="relative">
           <button
             onClick={() => setShowExportOptions(!showExportOptions)}
@@ -94,7 +101,7 @@ export default function TransactionList({
             <FaDownload className="w-3 h-3 sm:w-4 sm:h-4" />
             Export
           </button>
-          
+
           {showExportOptions && (
             <div className="absolute right-0 mt-2 w-40 sm:w-48 rounded-md shadow-lg bg-white/10 backdrop-blur-md border border-white/20">
               <div className="py-1">
