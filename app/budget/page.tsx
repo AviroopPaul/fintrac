@@ -26,6 +26,7 @@ export default function BudgetPage() {
   });
   const [isAddingBudget, setIsAddingBudget] = useState(false);
   const [newBudget, setNewBudget] = useState({ category: "", amount: 0 });
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Redirect if not authenticated
   if (status === "unauthenticated") {
@@ -158,6 +159,42 @@ export default function BudgetPage() {
     }
   };
 
+  const handleDeleteBudget = async (budgetId: string) => {
+    try {
+      const response = await fetch(`/api/budgets?id=${budgetId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete budget");
+      
+      // Update local state by filtering out the deleted budget
+      setBudgets(budgets.filter(budget => budget._id !== budgetId));
+    } catch (error) {
+      console.error("Error deleting budget:", error);
+    }
+  };
+
+  const handleUpdateBudget = async (budgetId: string, updatedBudget: Partial<Budget>) => {
+    try {
+      const response = await fetch(`/api/budgets?id=${budgetId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(updatedBudget),
+      });
+
+      if (!response.ok) throw new Error("Failed to update budget");
+      
+      // Update local state by mapping through budgets and updating the modified one
+      setBudgets(budgets.map(budget => 
+        budget._id === budgetId ? { ...budget, ...updatedBudget } : budget
+      ));
+    } catch (error) {
+      console.error("Error updating budget:", error);
+    }
+  };
+
   const formattedMonth = new Date(selectedMonth + "-01").toLocaleString(
     "default",
     {
@@ -204,7 +241,12 @@ export default function BudgetPage() {
             onCancel={() => setIsAddingBudget(false)}
           />
 
-          <BudgetList budgets={budgets} transactions={filteredTransactions} />
+          <BudgetList 
+            budgets={budgets} 
+            transactions={filteredTransactions} 
+            onDelete={handleDeleteBudget}
+            onUpdate={handleUpdateBudget}
+          />
         </div>
 
         {/* Transactions Section */}

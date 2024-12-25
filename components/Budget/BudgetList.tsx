@@ -1,13 +1,25 @@
 import { Budget } from "@/models/Budget";
 import { Transaction } from "@/models/Transaction";
 import { categoryConfig } from "@/models/categoryConfig";
+import { useState } from "react";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import BudgetModal from "./BudgetModal";
 
 interface BudgetListProps {
   budgets: Budget[];
   transactions: Transaction[];
+  onDelete: (budgetId: string) => void;
+  onUpdate: (budgetId: string, updatedBudget: Partial<Budget>) => void;
 }
 
-export default function BudgetList({ budgets, transactions }: BudgetListProps) {
+export default function BudgetList({
+  budgets,
+  transactions,
+  onDelete,
+  onUpdate,
+}: BudgetListProps) {
+  const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
+
   // Helper function to format currency in INR
   const formatINR = (amount: number) => {
     return new Intl.NumberFormat("en-IN", {
@@ -22,6 +34,19 @@ export default function BudgetList({ budgets, transactions }: BudgetListProps) {
     return transactions
       .filter((t) => t.category === category && t.type === "expense")
       .reduce((total, t) => total + t.amount, 0);
+  };
+
+  const handleDelete = async (budgetId: string) => {
+    if (!budgetId) return;
+    if (!confirm("Are you sure you want to delete this budget?")) return;
+    onDelete(budgetId);
+  };
+
+  const handleEdit = async (budgetData: Partial<Budget>) => {
+    if (!editingBudget?._id) return;
+    
+    await onUpdate(editingBudget._id, budgetData);
+    setEditingBudget(null);
   };
 
   return (
@@ -73,12 +98,24 @@ export default function BudgetList({ budgets, transactions }: BudgetListProps) {
                 </h3>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setEditingBudget(budget)}
+                  className="p-1 hover:bg-gray-700 rounded"
+                >
+                  <PencilIcon className="h-4 w-4 text-grey-500" />
+                </button>
+                <button
+                  onClick={() => budget._id && handleDelete(budget._id)}
+                  className="p-1 hover:bg-gray-700 rounded"
+                >
+                  <TrashIcon className="h-4 w-4 text-red-500" />
+                </button>
                 <span
                   className={`px-2 py-1 rounded-full text-[10px] sm:text-xs font-medium ${statusInfo.textColor} bg-opacity-10 ${statusInfo.color}`}
                 >
                   {statusInfo.label}
                 </span>
-                <span className="text-blue-400 text-sm sm:text-base">
+                <span className="text-blue-400 text-lg sm:text-base">
                   {formatINR(budget.amount)}
                 </span>
               </div>
@@ -107,6 +144,14 @@ export default function BudgetList({ budgets, transactions }: BudgetListProps) {
           </div>
         );
       })}
+
+      <BudgetModal
+        isOpen={!!editingBudget}
+        onClose={() => setEditingBudget(null)}
+        onSubmit={handleEdit}
+        budget={editingBudget || undefined}
+        month={budgets[0]?.month || new Date().toISOString().slice(0, 7)}
+      />
 
       <style jsx>{`
         @keyframes growWidth {

@@ -35,14 +35,17 @@ export default function BudgetForm({ onSubmit, onCancel, isOpen }: BudgetFormPro
             </option>
           ))}
         </select>
-        <input
-          type="number"
-          placeholder="Amount"
-          value={newBudget.amount}
-          onChange={(e) => setNewBudget({ ...newBudget, amount: parseFloat(e.target.value) })}
-          className="px-3 py-2 bg-gray-800 rounded border border-gray-700 text-white"
-          required
-        />
+        <div className="relative">
+          <span className="absolute left-3 top-2 text-gray-400">₹</span>
+          <input
+            type="number"
+            placeholder="Amount"
+            value={newBudget.amount}
+            onChange={(e) => setNewBudget({ ...newBudget, amount: parseFloat(e.target.value) })}
+            className="pl-7 px-3 py-2 bg-gray-800 rounded border border-gray-700 text-white w-full"
+            required
+          />
+        </div>
         <div className="flex gap-2">
           <button
             type="submit"
