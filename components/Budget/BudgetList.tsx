@@ -55,14 +55,14 @@ export default function BudgetList({ budgets, transactions }: BudgetListProps) {
           >
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
-                {categoryData && <categoryData.icon className={`h-5 w-5 ${categoryData.colors}`} />}
-                <h3 className="text-lg font-medium text-white">{budget.category}</h3>
+                {categoryData && <categoryData.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${categoryData.colors}`} />}
+                <h3 className="text-base sm:text-lg font-medium text-white">{budget.category}</h3>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.textColor} bg-opacity-10 ${statusInfo.color}`}>
+                <span className={`px-2 py-1 rounded-full text-[10px] sm:text-xs font-medium ${statusInfo.textColor} bg-opacity-10 ${statusInfo.color}`}>
                   {statusInfo.label}
                 </span>
-                <span className="text-blue-400">{formatINR(budget.amount)}</span>
+                <span className="text-blue-400 text-sm sm:text-base">{formatINR(budget.amount)}</span>
               </div>
             </div>
             <div className="w-full bg-gray-800/50 rounded-full h-4 shadow-inner">
@@ -74,7 +74,7 @@ export default function BudgetList({ budgets, transactions }: BudgetListProps) {
                 }}
               ></div>
             </div>
-            <div className="flex justify-between items-center mt-2 text-sm">
+            <div className="flex justify-between items-center mt-2 text-xs sm:text-sm">
               <span className="text-gray-400">
                 Spent: {formatINR(spentAmount)} ({spentPercentage.toFixed(0)}%)
               </span>

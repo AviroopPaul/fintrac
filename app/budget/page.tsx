@@ -168,7 +168,9 @@ export default function BudgetPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <h1 className="text-2xl font-bold mb-6 text-white">Monthly Budget</h1>
+        <h1 className="text-2xl font-bold mb-6 text-white">
+          {session?.user?.name ? `${session.user.name}'s` : 'Monthly'} Budget
+        </h1>
         <input
           type="month"
           value={selectedMonth}

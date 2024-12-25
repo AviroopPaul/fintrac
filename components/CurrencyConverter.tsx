@@ -75,34 +75,34 @@ export default function CurrencyConverter() {
     <div className="rounded-xl bg-slate-800/40 backdrop-blur-md border border-slate-700/50 shadow-[0_0_25px_rgba(15,23,42,0.3)]">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-6 flex items-center justify-between text-left"
+        className="w-full p-4 sm:p-6 flex items-center justify-between text-left"
       >
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <ArrowsRightLeftIcon className="h-6 w-6 text-blue-400" />
+        <h2 className="text-base sm:text-xl font-bold text-white flex items-center gap-1.5 sm:gap-2">
+          <ArrowsRightLeftIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400" />
           Currency Converter
         </h2>
         <ChevronDownIcon 
-          className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
+          className={`h-5 w-5 sm:h-6 sm:w-6 text-slate-400 transition-transform duration-200 ${
             isOpen ? 'transform rotate-180' : ''
           }`}
         />
       </button>
       
       {isOpen && (
-        <div className="p-6 pt-0">
-          <div className="flex flex-col gap-4">
-            <div className="flex gap-4">
+        <div className="p-4 sm:p-6 pt-0">
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <div className="flex gap-2 sm:gap-4">
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter amount"
-                className="flex-1 px-4 py-2 rounded bg-slate-800 text-white border border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded text-sm sm:text-base bg-slate-800 text-white border border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               <select
                 value={fromCurrency}
                 onChange={(e) => setFromCurrency(e.target.value)}
-                className="px-4 py-2 rounded bg-slate-800 text-white border border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-2 sm:px-4 py-1.5 sm:py-2 rounded text-sm sm:text-base bg-slate-800 text-white border border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
@@ -110,22 +110,22 @@ export default function CurrencyConverter() {
               </select>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-700/50">
-                <p className="text-sm text-slate-400">Amount in INR</p>
-                <p className="text-xl font-semibold text-white">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+              <div className="p-3 sm:p-4 rounded-lg bg-slate-900/50 border border-slate-700/50">
+                <p className="text-xs sm:text-sm text-slate-400">Amount in INR</p>
+                <p className="text-lg sm:text-xl font-semibold text-white">
                   ₹{amount ? convertToINR(parseFloat(amount), fromCurrency) : "0.00"}
                 </p>
               </div>
-              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-700/50">
-                <p className="text-sm text-slate-400">Exchange Rate</p>
-                <p className="text-xl font-semibold text-white">
+              <div className="p-3 sm:p-4 rounded-lg bg-slate-900/50 border border-slate-700/50">
+                <p className="text-xs sm:text-sm text-slate-400">Exchange Rate</p>
+                <p className="text-lg sm:text-xl font-semibold text-white">
                   1 {fromCurrency} = ₹{rates ? rates[fromCurrency as keyof ExchangeRates].toFixed(2) : "0.00"}
                 </p>
               </div>
-              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-700/50">
-                <p className="text-sm text-slate-400">Last Updated</p>
-                <p className="text-xl font-semibold text-white">
+              <div className="p-3 sm:p-4 rounded-lg bg-slate-900/50 border border-slate-700/50">
+                <p className="text-xs sm:text-sm text-slate-400">Last Updated</p>
+                <p className="text-lg sm:text-xl font-semibold text-white">
                   {new Date().toLocaleTimeString()}
                 </p>
               </div>

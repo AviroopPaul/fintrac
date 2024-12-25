@@ -147,16 +147,16 @@ export default function TransactionForm({ onAdd }: TransactionFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
       <div>
-        <label className="block text-sm font-medium text-white/80 mb-2">Type</label>
-        <div className="flex gap-3 mt-1">
+        <label className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 sm:mb-2">Type</label>
+        <div className="flex gap-2 sm:gap-3 mt-1">
           {Object.entries(typeConfig).map(([type, config]) => (
             <button
               key={type}
               type="button"
               onClick={() => setFormData({ ...formData, type })}
-              className={`px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 flex-1 justify-center backdrop-blur-md transition-all duration-300 border-2 ${
+              className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 flex-1 justify-center backdrop-blur-md transition-all duration-300 border-2 ${
                 formData.type === type
                   ? type === 'expense' 
                     ? 'bg-red-400/10 border-red-400/50 text-red-300 shadow-[inset_0_0_20px_rgba(248,113,113,0.15)]'
@@ -171,49 +171,47 @@ export default function TransactionForm({ onAdd }: TransactionFormProps) {
       </div>
 
       <div className="relative">
-        <label className="block text-sm font-medium text-white/80 mb-2">Description</label>
+        <label className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 sm:mb-2">Description</label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="mt-1 block w-full h-24 rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-md text-white/90 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] focus:border-blue-400/50 focus:ring-blue-400/20 resize-none transition-all duration-300"
+          className="mt-1 block w-full h-20 sm:h-24 rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-md text-sm sm:text-base text-white/90 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] focus:border-blue-400/50 focus:ring-blue-400/20 resize-none transition-all duration-300"
           required
         />
-        <div className="absolute -z-10 inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-xl blur-xl" />
       </div>
 
       <div className="relative">
-        <label className="block text-sm font-medium text-white/80 mb-2">Amount (₹)</label>
+        <label className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 sm:mb-2">Amount (₹)</label>
         <div className="relative mt-1">
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-white/50">
+          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-white/50 text-sm sm:text-base">
             ₹
           </span>
           <input
             type="number"
             value={formData.amount}
             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-            className="pl-7 block w-full h-12 rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-md text-white/90 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] focus:border-blue-400/50 focus:ring-blue-400/20 transition-all duration-300"
+            className="pl-7 block w-full h-10 sm:h-12 rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-md text-sm sm:text-base text-white/90 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] focus:border-blue-400/50 focus:ring-blue-400/20 transition-all duration-300"
             required
           />
-          <div className="absolute -z-10 inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-xl blur-xl" />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-white/80 mb-2">Category</label>
-        <div className="flex flex-wrap gap-2">
+        <label className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 sm:mb-2">Category</label>
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
           {Object.entries(categories).map(([category, config]) => (
             <div key={category} className="relative group">
               <button
                 type="button"
                 onClick={() => setFormData(prev => ({ ...prev, category }))}
-                className={`px-4 py-2 rounded-xl text-sm flex items-center gap-2 backdrop-blur-md transition-all duration-300 border-2 ${
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 backdrop-blur-md transition-all duration-300 border-2 ${
                   formData.category === category
                     ? `${config.colors} border-current shadow-[inset_0_0_20px_rgba(255,255,255,0.1)]`
                     : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20'
                 }`}
               >
                 {React.createElement(config.icon, {
-                  className: "w-4 h-4"
+                  className: "w-3 h-3 sm:w-4 sm:h-4"
                 })}
                 {category}
               </button>
@@ -278,29 +276,23 @@ export default function TransactionForm({ onAdd }: TransactionFormProps) {
       </div>
 
       <div className="relative">
-        <label className="block text-sm font-medium text-white/80 mb-2">Date</label>
+        <label className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 sm:mb-2">Date</label>
         <DatePicker
           selected={formData.date}
           onChange={(date: Date | null) => date && setFormData({ ...formData, date })}
-          className="block w-full h-12 rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-md text-white/90 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] focus:border-blue-400/50 focus:ring-blue-400/20 px-3 transition-all duration-300"
+          className="block w-full h-10 sm:h-12 rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-md text-sm sm:text-base text-white/90 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] focus:border-blue-400/50 focus:ring-blue-400/20 px-3 transition-all duration-300"
           dateFormat="MMMM d, yyyy"
           required
-          showPopperArrow={false}
-          calendarClassName="glass-calendar"
-          wrapperClassName="w-full"
-          popperClassName="glass-calendar-popper"
         />
-        <div className="absolute -z-10 inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-xl blur-xl" />
       </div>
 
       <button
         type="submit"
-        className="w-full relative border-2 border-purple-400/30 bg-white/5 backdrop-blur-md text-white py-3 px-4 rounded-xl 
+        className="w-full relative border-2 border-purple-400/30 bg-white/5 backdrop-blur-md text-white py-2.5 sm:py-3 px-4 rounded-xl text-sm sm:text-base
         hover:bg-white/10 hover:border-purple-400/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 
         focus:ring-offset-2 focus:ring-offset-slate-800 transform transition-all duration-300 
         hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/25 group overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 group-hover:from-blue-500/20 group-hover:to-purple-500/20 transition-all duration-300" />
         <span className="relative font-medium">Add Transaction</span>
       </button>
     </form>

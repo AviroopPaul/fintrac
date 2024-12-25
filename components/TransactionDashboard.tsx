@@ -17,6 +17,7 @@ import TransactionSection from "./TransactionSection";
 import { Transaction } from "@/models/Transaction";
 import { StarIcon } from "@heroicons/react/24/outline";
 import CurrencyConverter from "./CurrencyConverter";
+import { useSession } from "next-auth/react";
 
 ChartJS.register(
   ArcElement,
@@ -42,7 +43,11 @@ interface AnalysisResult {
 export default function TransactionDashboard({
   initialTransactions,
 }: TransactionDashboardProps) {
-  console.log('TransactionDashboard received initialTransactions:', initialTransactions);
+  const { data: session } = useSession();
+  console.log(
+    "TransactionDashboard received initialTransactions:",
+    initialTransactions
+  );
   const [transactions, setTransactions] = useState(initialTransactions);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     // Default to current month
@@ -129,7 +134,7 @@ export default function TransactionDashboard({
     try {
       const response = await fetch(`/api/transactions/${id}`, {
         method: "DELETE",
-        credentials: 'include'
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -155,7 +160,7 @@ export default function TransactionDashboard({
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: 'include',
+          credentials: "include",
           body: JSON.stringify({
             description: updatedTransaction.description,
             amount: updatedTransaction.amount,
@@ -193,7 +198,7 @@ export default function TransactionDashboard({
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({ transactions: filteredTransactions }),
       });
 
@@ -214,7 +219,8 @@ export default function TransactionDashboard({
     <div className="container mx-auto px-4 py-8 bg-slate-900 min-h-screen">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-white">
-          Financial Dashboard - {formattedMonth}
+          {session?.user?.name ? `${session.user.name}'s` : ""} Dashboard -{" "}
+          {formattedMonth}
         </h1>
         <div className="flex items-center gap-2">
           <button
