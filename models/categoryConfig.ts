@@ -12,16 +12,8 @@ import {
 } from "react-icons/fa";
 import { IconType } from 'react-icons';
 
-export interface CategoryConfig {
-  [key: string]: {
-    colors: string;
-    icon: IconType;
-    backgroundColor?: string;
-  };
-}
-
 export const defaultCategories = [
-  'UK',
+  'Income',
   'Food & Dining',
   'Transportation',
   'Shopping',
@@ -29,13 +21,29 @@ export const defaultCategories = [
   'Entertainment',
   'Healthcare',
   'Investments',
-  'Income',
   'Education',
   'Other'
 ] as const;
 
+// Create a type from the default categories
+export type DefaultCategory = typeof defaultCategories[number];
+
+// Update the CategoryConfig interface to be more specific
+export interface CategoryConfig {
+  [key: string]: {
+    colors: string;
+    icon: IconType;
+    backgroundColor: string;
+  };
+}
+
 export const categoryConfig: CategoryConfig = {
   'UK': {
+    colors: "bg-gray-400/20 text-gray-300",
+    icon: FaQuestionCircle,
+    backgroundColor: 'rgba(156, 163, 175, 0.6)',
+  },
+  'Test': {
     colors: "bg-gray-400/20 text-gray-300",
     icon: FaQuestionCircle,
     backgroundColor: 'rgba(156, 163, 175, 0.6)',
@@ -93,11 +101,11 @@ export const categoryConfig: CategoryConfig = {
 };
 
 export const getDefaultCategoryConfig = (category: string) => {
-  return (
-    categoryConfig[category] || {
-      colors: "bg-gray-400/20 text-gray-300",
-      icon: FaQuestionCircle,
-      backgroundColor: 'rgba(156, 163, 175, 0.6)',
-    }
-  );
+  const defaultConfig = {
+    colors: "bg-gray-400/20 text-gray-300",
+    icon: FaQuestionCircle,
+    backgroundColor: 'rgba(156, 163, 175, 0.6)',
+  };
+  
+  return categoryConfig[category] || defaultConfig;
 }; 
