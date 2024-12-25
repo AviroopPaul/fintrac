@@ -5,6 +5,12 @@ import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => void;
+  }
+}
+
 interface ExportButtonProps {
   transactions: Transaction[];
 }
@@ -60,7 +66,7 @@ export default function ExportButton({ transactions }: ExportButtonProps) {
       </button>
 
       {showExportOptions && (
-        <div className="absolute right-0 mt-2 w-40 sm:w-48 rounded-md shadow-lg bg-white/10 backdrop-blur-md border border-white/20">
+        <div className="absolute right-0 mt-2 w-40 sm:w-48 rounded-md shadow-lg bg-white/10 backdrop-blur-md border border-white/20 z-50">
           <div className="py-1">
             <button
               onClick={exportToExcel}
