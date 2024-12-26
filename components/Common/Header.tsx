@@ -40,7 +40,7 @@ export default function Header() {
         <div className="container mx-auto px-3 md:px-6">
           <div className="flex items-center justify-between h-14">
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => router.push('/tracker')}
               className="text-lg md:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500"
             >
               FinTrac
@@ -88,7 +88,7 @@ export default function Header() {
                         : "hover:bg-blue-500/10 text-gray-400 hover:text-blue-400"
                     }`}
                   >
-                    AI Advisor
+                    AI Advisor ✨
                   </Link>
                 </nav>
                 <button
@@ -173,7 +173,7 @@ export default function Header() {
                       }`}
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      AI Advisor
+                      AI Advisor ✨
                     </Link>
                     <button
                       onClick={() => {

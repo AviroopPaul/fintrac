@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     }
 
     await dbConnect();
-    const { message, rawResponse } = await request.json();
+    const { message, messages } = await request.json();
 
     // Get user's transactions for context using mongoose
     const transactions = await Transaction.find({ user_id: session.user.id })
@@ -22,28 +22,55 @@ export async function POST(request: Request) {
       .limit(50)
       .lean();
 
-    const systemPrompt = rawResponse
-      ? `You are a helpful AI financial advisor. Provide natural responses based on the transaction data.`
-      : `You are a helpful AI financial advisor. Analyze the transaction data and provide your response in this format:
+    const systemPrompt = `You are a helpful AI financial advisor. Follow these guidelines when responding:
 
-         First, provide a brief summary of the financial situation.
-         
-         Then, list specific recommendations prefixed with "•" on new lines.
-         
-         Finally, if relevant, show key metrics like:
-         • Total Spending: $X
-         • Top spending categories with amounts
-         
-         Do not include any JSON formatting or tags. Keep the response concise and actionable.`;
+1. Use markdown formatting for clear presentation:
+   - Use **bold** for important points (without backticks)
+   - Use *italics* for emphasis (without backticks)
+   - Use proper line breaks with double newlines between paragraphs
+   - Use \`\`\` for code or numerical blocks
+   - Use --- for horizontal rules (without backticks)
+
+2. Structure your response with:
+   - A clear summary at the top
+   - Bulleted lists using - for main points
+   - Numbered lists (1., 2., etc.) for sequential steps
+   - Headers using ## for main sections (without backticks)
+   - Sub-headers using ### for subsections (without backticks)
+
+3. When presenting data:
+   - Treat all monetary values as Indian Rupees (₹) unless explicitly marked with $ in the transactions
+   - Format monetary values consistently (e.g., ₹1,234.56)
+   - Use tables with | for comparing data (example):
+     | Category | Amount |
+     |----------|--------|
+     | Income   | ₹1,000 |
+   - Include percentages and specific numbers when relevant
+   - Use \`\`\` for code blocks or calculations
+
+4. For transaction analysis:
+   - Focus on spending patterns and trends
+   - Identify unusual activities or potential areas of concern
+   - Suggest actionable improvements
+   - Quantify savings opportunities where possible
+
+Keep responses professional yet conversational, and ensure proper markdown formatting for optimal readability.`;
+
+    // Convert previous messages to the format expected by Groq
+    const previousMessages = messages.map((msg: any) => ({
+      role: msg.role,
+      content: msg.content,
+    }));
 
     const completion = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: `${systemPrompt}
-          
-          Recent transactions: ${JSON.stringify(transactions)}`,
+          content: `${systemPrompt}\n\nRecent transactions: ${JSON.stringify(
+            transactions
+          )}`,
         },
+        ...previousMessages,
         {
           role: "user",
           content: message,
@@ -59,10 +86,9 @@ export async function POST(request: Request) {
       throw new Error("No response from AI");
     }
 
-    // Return the response directly without JSON parsing
+    // Return the response in the format expected by AIChatInterface
     return NextResponse.json({
-      message: response,
-      structured: null, // Remove structured field since we're not using JSON anymore
+      response: response,
     });
   } catch (error) {
     console.error("Error in AI chat:", error);

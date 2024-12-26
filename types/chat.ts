@@ -1,6 +1,7 @@
 export interface Message {
   role: "user" | "assistant";
   content: string;
+  isLoading?: boolean;
 }
 
 export interface ChatMetrics {
@@ -14,10 +15,5 @@ export interface ChatMetrics {
 }
 
 export interface ChatResponse {
-  message: string;
-  structured?: {
-    summary: string;
-    advice?: string[];
-    metrics?: ChatMetrics;
-  };
+  response: string;
 }

@@ -8,12 +8,11 @@ export const metadata: Metadata = {
 
 export default function AIAdvisorPage() {
   return (
-    <main className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6 text-white">
-          AI Financial Advisor
-        </h1>
-        <AIChatInterface />
+    <main className="h-[calc(100vh-64px)]">
+      <div className="container h-full mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto h-full">
+          <AIChatInterface />
+        </div>
       </div>
     </main>
   );

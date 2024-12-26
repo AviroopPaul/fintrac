@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { IoRocketSharp } from "react-icons/io5";
+import { IoStopCircle } from "react-icons/io5";
 
 interface AIChatInputProps {
   onSendMessage: (message: string) => void;
@@ -37,7 +38,7 @@ export default function AIChatInput({
           className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg disabled:opacity-50 transition-colors flex items-center gap-2"
         >
           {isLoading ? (
-            "Sending..."
+            <IoStopCircle className="text-lg" />
           ) : (
             <>
               <IoRocketSharp className="text-lg" />
