@@ -17,7 +17,8 @@ export default function Header() {
   const showNav =
     pathname?.startsWith("/tracker") ||
     pathname?.startsWith("/budget") ||
-    pathname?.startsWith("/subscriptions");
+    pathname?.startsWith("/subscriptions") ||
+    pathname?.startsWith("/ai-advisor");
 
   const handleLogout = async () => {
     try {
@@ -78,6 +79,16 @@ export default function Header() {
                     }`}
                   >
                     Subscriptions
+                  </Link>
+                  <Link
+                    href="/ai-advisor"
+                    className={`px-3 py-1.5 rounded-full transition-all duration-300 ${
+                      pathname === "/ai-advisor"
+                        ? "bg-blue-500/10 text-blue-400"
+                        : "hover:bg-blue-500/10 text-gray-400 hover:text-blue-400"
+                    }`}
+                  >
+                    AI Advisor
                   </Link>
                 </nav>
                 <button
@@ -152,6 +163,17 @@ export default function Header() {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Subscriptions
+                    </Link>
+                    <Link
+                      href="/ai-advisor"
+                      className={`block px-4 py-2 text-sm ${
+                        pathname === "/ai-advisor"
+                          ? "text-blue-400"
+                          : "text-gray-400 hover:text-blue-400"
+                      }`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      AI Advisor
                     </Link>
                     <button
                       onClick={() => {
