@@ -1,5 +1,5 @@
 import { Message } from "@/types/chat";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useSession } from "next-auth/react";
@@ -11,6 +11,7 @@ interface AIChatHistoryProps {
   userIcon: ReactNode;
   userName: string;
   LoadingIndicator: React.ComponentType;
+  onScroll: (event: React.UIEvent<HTMLDivElement>) => void;
 }
 
 export default function AIChatHistory({
@@ -19,11 +20,24 @@ export default function AIChatHistory({
   userIcon,
   userName,
   LoadingIndicator,
+  onScroll,
 }: AIChatHistoryProps) {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
-    <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-4">
+    <div
+      className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-4"
+      onScroll={onScroll}
+    >
       {messages.map((message, index) => (
         <div
           key={index}
@@ -123,6 +137,7 @@ export default function AIChatHistory({
           </div>
         </div>
       ))}
+      <div ref={messagesEndRef} />
     </div>
   );
 }
