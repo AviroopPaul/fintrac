@@ -11,14 +11,14 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import SummaryCards from "./SummaryCards";
-import ChartSection from "./ChartSection";
-import TransactionSection from "./TransactionSection";
+import SummaryCards from "./Dashboard/SummaryCards";
+import ChartSection from "./Dashboard/ChartSection";
+import TransactionSection from "./Dashboard/TransactionSection";
 import { Transaction } from "@/models/Transaction";
 import { StarIcon } from "@heroicons/react/24/outline";
-import CurrencyConverter from "./CurrencyConverter";
+import CurrencyConverter from "./Dashboard/CurrencyConverter";
 import { useSession } from "next-auth/react";
-import WelcomeGuide from './WelcomeGuide';
+import WelcomeGuide from "./Common/WelcomeGuide";
 
 ChartJS.register(
   ArcElement,

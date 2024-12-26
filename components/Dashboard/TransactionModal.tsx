@@ -1,4 +1,4 @@
-import { Transaction } from "../models/Transaction";
+import { Transaction } from "../../models/Transaction";
 import { useState, useEffect } from "react";
 import {
   categoryConfig,
@@ -34,8 +34,11 @@ export default function TransactionModal({
       setAmount(transaction.amount.toString());
       setCategory(transaction.category || "Other");
       setType(transaction.type || "expense");
-      
-      if (transaction.category && !Object.keys(categoryConfig).includes(transaction.category)) {
+
+      if (
+        transaction.category &&
+        !Object.keys(categoryConfig).includes(transaction.category)
+      ) {
         setShowCustomCategory(true);
       }
     }
@@ -62,7 +65,7 @@ export default function TransactionModal({
       const newCategory = {
         colors: "bg-gray-400/20 text-gray-300",
         icon: FaQuestionCircle,
-        backgroundColor: 'rgba(156, 163, 175, 0.6)',
+        backgroundColor: "rgba(156, 163, 175, 0.6)",
       };
 
       try {
@@ -98,7 +101,9 @@ export default function TransactionModal({
     }
   };
 
-  const handleCustomCategoryKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleCustomCategoryKeyPress = (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key === "Enter") {
       e.preventDefault();
       handleCustomCategorySubmit();
@@ -149,7 +154,7 @@ export default function TransactionModal({
                       </option>
                     ))}
                     {Object.keys(categories)
-                      .filter(cat => !defaultCategories.includes(cat as any))
+                      .filter((cat) => !defaultCategories.includes(cat as any))
                       .map((cat) => (
                         <option key={cat} value={cat}>
                           {cat} (Custom)

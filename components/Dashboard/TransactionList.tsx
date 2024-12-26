@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import TransactionModal from "./TransactionModal";
 import type { Transaction } from "@/models/Transaction";
 import { CategoryConfig, categoryConfig } from "@/models/categoryConfig";
-import ExportButton from "./TransactionList/ExportButton";
-import CategoryFilter from "./TransactionList/CategoryFilter";
-import TransactionItem from "./TransactionList/TransactionItem";
+import ExportButton from "../TransactionList/ExportButton";
+import CategoryFilter from "../TransactionList/CategoryFilter";
+import TransactionItem from "../TransactionList/TransactionItem";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -17,7 +17,8 @@ export default function TransactionList({
   onDelete,
   onUpdate,
 }: TransactionListProps) {
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,15 +28,18 @@ export default function TransactionList({
     if (categoryFilter !== "All" && transaction.category !== categoryFilter) {
       return false;
     }
-    
+
     if (searchQuery.trim() === "") return true;
-    
+
     const searchLower = searchQuery.toLowerCase();
     return (
       transaction.description.toLowerCase().includes(searchLower) ||
       transaction.amount.toString().includes(searchLower) ||
       transaction.category.toLowerCase().includes(searchLower) ||
-      new Date(transaction.date).toLocaleDateString().toLowerCase().includes(searchLower)
+      new Date(transaction.date)
+        .toLocaleDateString()
+        .toLowerCase()
+        .includes(searchLower)
     );
   });
 

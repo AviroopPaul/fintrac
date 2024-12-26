@@ -9,7 +9,7 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 
 import BudgetForm from "@/components/Budget/BudgetForm";
 import BudgetList from "@/components/Budget/BudgetList";
-import TransactionList from "@/components/TransactionList";
+import TransactionList from "@/components/Dashboard/TransactionList";
 import Loader from "@/components/Common/Loader";
 
 export default function BudgetPage() {

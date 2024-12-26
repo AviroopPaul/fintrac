@@ -88,7 +88,7 @@ export default function Header() {
                         : "hover:bg-blue-500/10 text-gray-400 hover:text-blue-400"
                     }`}
                   >
-                    AI Advisor ✨
+                    FinAI ✨
                   </Link>
                 </nav>
                 <button
