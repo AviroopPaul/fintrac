@@ -87,13 +87,15 @@ export default function AIChatInterface() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)] bg-gradient-to-b from-gray-900 to-gray-800 rounded-lg border border-cyan-500/30 shadow-lg shadow-cyan-500/20">
-      <div className="flex items-center gap-2 p-4 border-b border-cyan-500/30 bg-gray-900/50">
-        <RiRobot2Fill className="text-cyan-400 text-xl" />
-        <h2 className="text-cyan-400 font-semibold">
-          FinAI-Your Financial Advisor
-        </h2>
-        <span className="ml-auto flex items-center gap-1">
-          <span className="text-cyan-400 text-sm">powered by</span>
+      <div className="flex items-center justify-between gap-2 p-4 border-b border-cyan-500/30 bg-gray-900/50">
+        <div className="flex items-center gap-2">
+          <RiRobot2Fill className="text-cyan-400 text-lg sm:text-xl" />
+          <h2 className="text-cyan-400 font-semibold text-sm sm:text-base">
+            FinAI-Your Financial Advisor
+          </h2>
+        </div>
+        <div className="flex items-center gap-1 whitespace-nowrap">
+          <span className="text-cyan-400 text-xs sm:text-sm">powered by</span>
           <a
             href="https://groq.com"
             target="_blank"
@@ -103,12 +105,12 @@ export default function AIChatInterface() {
             <Image
               src="/images/groq.png"
               alt="Groq Logo"
-              width={35}
-              height={10}
-              className="object-contain hover:opacity-80 transition-opacity mt-0.5"
+              width={30}
+              height={8}
+              className="object-contain hover:opacity-80 transition-opacity mt-0.5 sm:w-[35px] sm:h-[10px]"
             />
           </a>
-        </span>
+        </div>
       </div>
       <AIChatHistory
         messages={messages}

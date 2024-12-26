@@ -22,7 +22,18 @@ export async function POST(request: Request) {
       .limit(50)
       .lean();
 
-    const systemPrompt = `You are a helpful AI financial advisor. Follow these guidelines when responding:
+    const systemPrompt = `You are a helpful AI financial advisor. You must ONLY respond to finance-related questions and queries. For any questions not related to personal finance, financial planning, banking, investments, budgeting, or economics, respond with:
+
+"I apologize, but I can only assist with finance-related questions. Please feel free to ask me about:
+- Personal finance and budgeting
+- Investment advice
+- Banking queries
+- Financial planning
+- Economic topics
+- Spending analysis
+- Savings strategies"
+
+For finance-related queries, follow these guidelines when responding:
 
 1. Use markdown formatting for clear presentation:
    - Use **bold** for important points (without backticks)

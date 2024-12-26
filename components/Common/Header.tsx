@@ -173,7 +173,7 @@ export default function Header() {
                       }`}
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      AI Advisor ✨
+                      FinAI ✨
                     </Link>
                     <button
                       onClick={() => {
