@@ -45,7 +45,6 @@ export default function AIChatInput({
           ) : (
             <>
               <IoRocketSharp className="text-lg" />
-              <span className="hidden sm:inline">Send</span>
             </>
           )}
         </button>
