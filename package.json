@@ -21,6 +21,7 @@
     "chart.js": "^4.4.7",
     "clerk": "^0.8.3",
     "cookies-next": "^5.0.2",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "groq-sdk": "^0.9.1",
     "jsonwebtoken": "^9.0.2",

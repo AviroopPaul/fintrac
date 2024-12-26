@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const subscriptionSchema = new mongoose.Schema({
   userId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
   service: {
@@ -12,6 +12,7 @@ const subscriptionSchema = new mongoose.Schema({
   amount: {
     type: Number,
     required: true,
+    transform: (v: string) => parseFloat(v),
   },
   billingCycle: {
     type: String,
@@ -21,6 +22,11 @@ const subscriptionSchema = new mongoose.Schema({
   nextBillingDate: {
     type: Date,
     required: true,
+    default: () => {
+      const date = new Date();
+      date.setMonth(date.getMonth() + 1);
+      return date;
+    },
   },
   imageUrl: {
     type: String,

@@ -58,13 +58,16 @@ export async function POST(request: Request) {
 
     const data = await request.json();
     console.log("Received subscription data:", data);
-    console.log("User ID:", session.user.id);
 
     const subscription = await Subscription.create({
       ...data,
       userId: session.user.id,
+      amount: parseFloat(data.amount),
       createdAt: new Date(),
       active: true,
+      nextBillingDate:
+        data.nextBillingDate ||
+        new Date(new Date().setMonth(new Date().getMonth() + 1)),
     });
 
     const formattedSubscription = {
