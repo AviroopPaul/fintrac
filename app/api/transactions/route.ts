@@ -6,6 +6,10 @@ import mongoose from "mongoose";
 
 export async function GET() {
   try {
+    // Ensure DB connection is established first
+    await dbConnect();
+    console.log("Database connected");
+
     const auth = await verifyAuth();
 
     if (!auth?.userId) {
@@ -14,9 +18,6 @@ export async function GET() {
     }
 
     console.log("Auth successful, userId:", auth.userId);
-
-    await dbConnect();
-    console.log("Database connected");
 
     // Change back to user_id to match schema
     const user_id = auth.userId;
@@ -47,13 +48,16 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    // Ensure DB connection is established first
+    await dbConnect();
+    console.log("Database connected");
+
     const auth = await verifyAuth();
 
     if (!auth?.userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    await dbConnect();
     const body = await req.json();
 
     // Use user_id to match schema

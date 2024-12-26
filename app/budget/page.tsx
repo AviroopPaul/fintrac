@@ -35,6 +35,11 @@ export default function BudgetPage() {
 
   // Filter transactions by selected month
   const filteredTransactions = useMemo(() => {
+    if (!Array.isArray(allTransactions)) {
+      console.error("allTransactions is not an array:", allTransactions);
+      return [];
+    }
+
     return allTransactions.filter((transaction) => {
       const transactionDate = new Date(transaction.date);
       const transactionMonth = `${transactionDate.getFullYear()}-${String(
@@ -63,7 +68,14 @@ export default function BudgetPage() {
           credentials: "include",
         });
         const transactionData = await transactionResponse.json();
-        setAllTransactions(transactionData);
+
+        // Ensure transactionData is an array before setting state
+        if (Array.isArray(transactionData)) {
+          setAllTransactions(transactionData);
+        } else {
+          console.error("Transaction data is not an array:", transactionData);
+          setAllTransactions([]);
+        }
 
         // Calculate spent amounts for each budget using filtered transactions
         const spentByCategory = filteredTransactions.reduce(
@@ -86,6 +98,7 @@ export default function BudgetPage() {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
+        setAllTransactions([]); // Reset to empty array on error
         setLoading(false);
       }
     };
@@ -167,15 +180,18 @@ export default function BudgetPage() {
       });
 
       if (!response.ok) throw new Error("Failed to delete budget");
-      
+
       // Update local state by filtering out the deleted budget
-      setBudgets(budgets.filter(budget => budget._id !== budgetId));
+      setBudgets(budgets.filter((budget) => budget._id !== budgetId));
     } catch (error) {
       console.error("Error deleting budget:", error);
     }
   };
 
-  const handleUpdateBudget = async (budgetId: string, updatedBudget: Partial<Budget>) => {
+  const handleUpdateBudget = async (
+    budgetId: string,
+    updatedBudget: Partial<Budget>
+  ) => {
     try {
       const response = await fetch(`/api/budgets?id=${budgetId}`, {
         method: "PUT",
@@ -185,11 +201,13 @@ export default function BudgetPage() {
       });
 
       if (!response.ok) throw new Error("Failed to update budget");
-      
+
       // Update local state by mapping through budgets and updating the modified one
-      setBudgets(budgets.map(budget => 
-        budget._id === budgetId ? { ...budget, ...updatedBudget } : budget
-      ));
+      setBudgets(
+        budgets.map((budget) =>
+          budget._id === budgetId ? { ...budget, ...updatedBudget } : budget
+        )
+      );
     } catch (error) {
       console.error("Error updating budget:", error);
     }
@@ -241,9 +259,9 @@ export default function BudgetPage() {
             onCancel={() => setIsAddingBudget(false)}
           />
 
-          <BudgetList 
-            budgets={budgets} 
-            transactions={filteredTransactions} 
+          <BudgetList
+            budgets={budgets}
+            transactions={filteredTransactions}
             onDelete={handleDeleteBudget}
             onUpdate={handleUpdateBudget}
           />
