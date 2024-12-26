@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import TransactionDashboard from "./TransactionDashboard";
-import Loader from "./Loader";
+import Loader from "./Common/Loader";
 import { useEffect, useState } from "react";
 import { Transaction } from "@/models/Transaction";
 
@@ -17,24 +17,24 @@ export default function TrackerClient() {
 
   useEffect(() => {
     async function checkAuth() {
-      console.log('Checking auth - Session Status:', sessionStatus);
+      console.log("Checking auth - Session Status:", sessionStatus);
       try {
         if (sessionStatus === "authenticated") {
-          console.log('NextAuth session found');
+          console.log("NextAuth session found");
           setIsAuthenticated(true);
           return;
         }
 
-        console.log('No NextAuth session, checking JWT auth');
+        console.log("No NextAuth session, checking JWT auth");
         const response = await fetch("/api/auth/check", {
           credentials: "include",
         });
 
         if (response.ok) {
-          console.log('JWT auth successful');
+          console.log("JWT auth successful");
           setIsAuthenticated(true);
         } else {
-          console.log('No valid authentication found, redirecting');
+          console.log("No valid authentication found, redirecting");
           router.push("/");
         }
       } catch (error) {
@@ -52,20 +52,22 @@ export default function TrackerClient() {
   useEffect(() => {
     async function fetchTransactions() {
       if (!isAuthenticated) return;
-      
-      console.log('Fetching transactions - isAuthenticated:', isAuthenticated);
+
+      console.log("Fetching transactions - isAuthenticated:", isAuthenticated);
       try {
         setLoading(true);
         const response = await fetch("/api/transactions", {
           credentials: "include",
         });
-        
+
         if (!response.ok) {
-          throw new Error(`Failed to fetch transactions: ${response.statusText}`);
+          throw new Error(
+            `Failed to fetch transactions: ${response.statusText}`
+          );
         }
-        
+
         const data = await response.json();
-        console.log('Transactions fetched successfully:', data.length, 'items');
+        console.log("Transactions fetched successfully:", data.length, "items");
         setTransactions(data);
         setError(null);
       } catch (error) {
@@ -95,6 +97,9 @@ export default function TrackerClient() {
     return <Loader />;
   }
 
-  console.log('Rendering TransactionDashboard with transactions:', transactions.length);
+  console.log(
+    "Rendering TransactionDashboard with transactions:",
+    transactions.length
+  );
   return <TransactionDashboard initialTransactions={transactions} />;
 }
