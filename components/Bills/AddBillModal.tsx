@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useState } from "react";
-import { DEFAULT_BILL_SERVICES } from "@/types/bill";
+import { DEFAULT_BILL_SERVICES, BILL_CATEGORIES } from "@/types/bill";
 
 interface AddBillModalProps {
   isOpen: boolean;
@@ -31,6 +31,9 @@ export default function AddBillModal({
   const [customImageUrl, setCustomImageUrl] = useState(
     "/images/bills/default.png"
   );
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    BILL_CATEGORIES[0].toLowerCase()
+  );
 
   if (!isOpen) return null;
 
@@ -40,7 +43,7 @@ export default function AddBillModal({
     await onSubmit({
       name: isCustom ? customName : selectedService!.name,
       amount: amount,
-      category: isCustom ? "other" : selectedService!.type,
+      category: isCustom ? selectedCategory : selectedService!.type,
       description: description,
       imageUrl: isCustom ? customImageUrl : selectedService!.imageUrl,
       customImage: customImage,
@@ -55,6 +58,11 @@ export default function AddBillModal({
     setCustomName("");
     setCustomImage(null);
     setCustomImageUrl("/images/bills/default.png");
+    setSelectedCategory(BILL_CATEGORIES[0].toLowerCase());
+  };
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category.toLowerCase());
   };
 
   return (
@@ -154,6 +162,25 @@ export default function AddBillModal({
                 className="w-full px-3 py-2 bg-gray-800 rounded-lg border border-white/10 text-white"
                 required
               />
+              <label className="block text-sm font-medium text-gray-400 mt-3 mb-1">
+                Category
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {BILL_CATEGORIES.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => handleCategorySelect(category)}
+                    className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                      selectedCategory === category.toLowerCase()
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
               <label className="block text-sm font-medium text-gray-400 mt-3 mb-1">
                 Bill Icon (optional)
               </label>

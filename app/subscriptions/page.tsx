@@ -259,13 +259,29 @@ export default function SubscriptionsPage() {
   };
 
   const handleEditBill = (bill: Bill) => {
-    // TODO: Implement bill editing
-    console.log("Editing bill:", bill);
+    setEditingBill(bill);
+    setIsEditingBill(true);
   };
 
   const handleDeleteBill = async (billId: string) => {
-    // TODO: Implement bill deletion
-    console.log("Deleting bill:", billId);
+    if (!confirm("Are you sure you want to delete this bill?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/bills/${billId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete bill");
+      }
+
+      await fetchBills();
+    } catch (error) {
+      console.error("Error deleting bill:", error);
+      alert("Failed to delete bill");
+    }
   };
 
   const handleAddBill = async (formData: {
@@ -351,23 +367,15 @@ export default function SubscriptionsPage() {
     fetchBills();
   }, []);
 
-  const handleUpdateBill = async (formData: {
-    name: string;
-    amount: string;
-    dueDate: Date;
-    category: string;
-    description?: string;
-    imageUrl: string;
-    customImage?: File | null;
-  }) => {
+  const handleUpdateBill = async (updatedBill: Partial<Bill>) => {
     if (!editingBill?._id) return;
 
     try {
-      let imageUrl = formData.imageUrl;
+      let imageUrl = updatedBill.imageUrl || editingBill.imageUrl;
 
-      if (formData.customImage) {
+      if (updatedBill.customImage) {
         const uploadFormData = new FormData();
-        uploadFormData.append("file", formData.customImage);
+        uploadFormData.append("file", updatedBill.customImage);
 
         try {
           const uploadResponse = await fetch("/api/upload", {
@@ -388,12 +396,12 @@ export default function SubscriptionsPage() {
       }
 
       const billData = {
-        name: formData.name,
-        amount: parseFloat(formData.amount),
-        dueDate: formData.dueDate,
-        category: formData.category,
-        description: formData.description,
+        ...editingBill,
+        ...updatedBill,
         imageUrl,
+        amount: updatedBill.amount
+          ? parseFloat(updatedBill.amount.toString())
+          : editingBill.amount,
       };
 
       const response = await fetch(`/api/bills/${editingBill._id}`, {
@@ -416,6 +424,23 @@ export default function SubscriptionsPage() {
       console.error("Error updating bill:", error);
       alert(error instanceof Error ? error.message : "Failed to update bill");
     }
+  };
+
+  const calculateTotalBillAmount = () => {
+    return bills.reduce((total, bill) => {
+      return total + bill.amount;
+    }, 0);
+  };
+
+  const groupBillsByCategory = () => {
+    const grouped: { [key: string]: Bill[] } = {};
+    bills.forEach((bill) => {
+      if (!grouped[bill.category]) {
+        grouped[bill.category] = [];
+      }
+      grouped[bill.category].push(bill);
+    });
+    return grouped;
   };
 
   return (
@@ -453,7 +478,7 @@ export default function SubscriptionsPage() {
             <div className="mt-6 p-4 rounded-xl border border-white/10 backdrop-blur-xl">
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">Total Monthly Cost:</span>
-                <span className="text-xl font-bold text-white">
+                <span className="text-xl font-bold text-green-400">
                   ₹{calculateTotalMonthlyAmount().toFixed(2)}
                 </span>
               </div>
@@ -478,6 +503,9 @@ export default function SubscriptionsPage() {
         onUpdate={handleUpdate}
       />
 
+      {/* Add a divider */}
+      <hr className="my-8 border-white/10" />
+
       {/* Bills Section */}
       <div className="mt-12">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
@@ -490,16 +518,37 @@ export default function SubscriptionsPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {bills.map((bill) => (
-            <BillCard
-              key={bill._id}
-              bill={bill}
-              onEdit={handleEditBill}
-              onDelete={handleDeleteBill}
-            />
-          ))}
-        </div>
+        {Object.entries(groupBillsByCategory()).map(
+          ([category, categoryBills]) => (
+            <div key={category} className="mb-8">
+              <h3 className="text-xl font-semibold text-white/80 mb-4 capitalize">
+                {category}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {categoryBills.map((bill) => (
+                  <BillCard
+                    key={bill._id}
+                    bill={bill}
+                    onEdit={handleEditBill}
+                    onDelete={handleDeleteBill}
+                  />
+                ))}
+              </div>
+            </div>
+          )
+        )}
+
+        {/* Add Bills Total */}
+        {bills.length > 0 && (
+          <div className="mt-6 p-4 rounded-xl border border-white/10 backdrop-blur-xl">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400">Total Bills Amount:</span>
+              <span className="text-xl font-bold text-green-400">
+                ₹{calculateTotalBillAmount().toFixed(2)}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Add Bill Modal */}

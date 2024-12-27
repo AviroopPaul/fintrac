@@ -3,12 +3,24 @@ export interface Bill {
   userId: string;
   name: string;
   amount: number;
+  dueDate: string | Date;
   category: string;
   description?: string;
   imageUrl: string;
+  billingCycle: "monthly" | "yearly";
   paid: boolean;
-  createdAt: Date;
+  createdAt: string | Date;
 }
+
+export const BILL_CATEGORIES = [
+  "Utilities",
+  "Rent",
+  "Insurance",
+  "Phone",
+  "Internet",
+  "Streaming",
+  "Other",
+] as const;
 
 export const DEFAULT_BILL_SERVICES = [
   {
@@ -27,18 +39,13 @@ export const DEFAULT_BILL_SERVICES = [
     type: "mobile",
   },
   {
-    name: "ACT",
-    imageUrl: "/images/bills/act.png",
-    type: "wifi",
-  },
-  {
     name: "Jio Fiber",
     imageUrl: "/images/bills/jio.png",
     type: "wifi",
   },
   {
     name: "Airtel Xstream",
-    imageUrl: "/images/bills/airtel-fiber.png",
+    imageUrl: "/images/bills/airtel.png",
     type: "wifi",
   },
 ] as const;

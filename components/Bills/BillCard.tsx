@@ -17,39 +17,30 @@ export default function BillCard({ bill, onEdit, onDelete }: BillCardProps) {
 
   return (
     <div className="p-4 rounded-xl border border-white/10 backdrop-blur-xl shadow-lg">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center space-x-3">
-          <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
-            <Image
-              src={getServiceImageUrl(bill.name)}
-              alt={bill.name}
-              fill
-              className="rounded-lg object-contain"
-            />
-          </div>
-          <div>
-            <h3 className="text-base sm:text-lg font-semibold text-white">
-              {bill.name}
-            </h3>
-            <div className="flex flex-col">
-              {bill.description && (
-                <p className="text-xs text-gray-400">{bill.description}</p>
-              )}
-              <span className="text-xs text-gray-500 capitalize">
-                {bill.category}
-              </span>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start space-x-3">
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
+              <Image
+                src={getServiceImageUrl(bill.name)}
+                alt={bill.name}
+                fill
+                className="rounded-lg object-contain"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-base sm:text-lg font-semibold text-white">
+                {bill.name}
+              </h3>
+              <p className="text-sm sm:text-base text-white">₹{bill.amount}</p>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-4">
-          <p className="text-sm sm:text-base font-medium text-green-400">
-            ₹{bill.amount}
-          </p>
           <div className="flex space-x-2">
             <button
               onClick={() => onEdit(bill)}
               className="p-1.5 sm:p-2 text-blue-400 hover:text-blue-300 transition-colors"
+              aria-label="Edit bill"
             >
               <svg
                 className="w-4 h-4 sm:w-5 sm:h-5"
@@ -68,6 +59,7 @@ export default function BillCard({ bill, onEdit, onDelete }: BillCardProps) {
             <button
               onClick={() => onDelete(bill._id)}
               className="p-1.5 sm:p-2 text-red-400 hover:text-red-300 transition-colors"
+              aria-label="Delete bill"
             >
               <svg
                 className="w-4 h-4 sm:w-5 sm:h-5"
@@ -85,6 +77,13 @@ export default function BillCard({ bill, onEdit, onDelete }: BillCardProps) {
             </button>
           </div>
         </div>
+
+        {/* Description section */}
+        {bill.description && (
+          <p className="text-sm text-gray-400 border-t border-white/10 pt-2">
+            {bill.description}
+          </p>
+        )}
       </div>
     </div>
   );
