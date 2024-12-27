@@ -16,6 +16,5 @@ export interface Service {
   imageUrl: string;
   defaultPrice: number;
 }
-
 // Export the default services from the constants file
-export { DEFAULT_SERVICES } from '../constants/subscriptions';
+export { DEFAULT_SERVICES } from "../constants/subscriptions";

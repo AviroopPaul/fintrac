@@ -1,36 +1,35 @@
 import Image from "next/image";
 import { useState } from "react";
-import { DEFAULT_SERVICES } from "@/constants/subscriptions";
-import { Service } from "@/types/subscription";
+import { DEFAULT_BILL_SERVICES } from "@/types/bill";
 
-interface AddSubscriptionModalProps {
+interface AddBillModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (formData: {
-    service: string;
+    name: string;
     amount: string;
-    billingCycle: "monthly" | "yearly";
+    category: string;
+    description?: string;
     imageUrl: string;
     customImage?: File | null;
-    nextBillingDate: Date;
   }) => Promise<void>;
 }
 
-export default function AddSubscriptionModal({
+export default function AddBillModal({
   isOpen,
   onClose,
   onSubmit,
-}: AddSubscriptionModalProps) {
+}: AddBillModalProps) {
   const [isCustom, setIsCustom] = useState(false);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedService, setSelectedService] = useState<
+    (typeof DEFAULT_BILL_SERVICES)[number] | null
+  >(null);
   const [amount, setAmount] = useState("");
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
-    "monthly"
-  );
+  const [description, setDescription] = useState("");
   const [customName, setCustomName] = useState("");
   const [customImage, setCustomImage] = useState<File | null>(null);
   const [customImageUrl, setCustomImageUrl] = useState(
-    "/images/subscriptions/default.png"
+    "/images/bills/default.png"
   );
 
   if (!isOpen) return null;
@@ -38,22 +37,13 @@ export default function AddSubscriptionModal({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const today = new Date();
-    const nextBillingDate = new Date(today);
-
-    if (billingCycle === "monthly") {
-      nextBillingDate.setMonth(today.getMonth() + 1);
-    } else {
-      nextBillingDate.setFullYear(today.getFullYear() + 1);
-    }
-
     await onSubmit({
-      service: isCustom ? customName : selectedService!.name,
+      name: isCustom ? customName : selectedService!.name,
       amount: amount,
-      billingCycle: billingCycle,
+      category: isCustom ? "other" : selectedService!.type,
+      description: description,
       imageUrl: isCustom ? customImageUrl : selectedService!.imageUrl,
       customImage: customImage,
-      nextBillingDate: nextBillingDate,
     });
   };
 
@@ -61,17 +51,17 @@ export default function AddSubscriptionModal({
     setIsCustom(false);
     setSelectedService(null);
     setAmount("");
-    setBillingCycle("monthly");
+    setDescription("");
     setCustomName("");
     setCustomImage(null);
-    setCustomImageUrl("/images/subscriptions/default.png");
+    setCustomImageUrl("/images/bills/default.png");
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-gray-900 p-4 sm:p-6 rounded-xl border border-white/10 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-white">Add New Subscription</h2>
+          <h2 className="text-xl font-bold text-white">Add New Bill</h2>
           <button
             type="button"
             onClick={onClose}
@@ -95,17 +85,16 @@ export default function AddSubscriptionModal({
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-            {DEFAULT_SERVICES.map((service: Service) => (
+            {DEFAULT_BILL_SERVICES.map((service) => (
               <button
-                key={service.id}
+                key={service.name}
                 type="button"
                 onClick={() => {
                   setIsCustom(false);
                   setSelectedService(service);
-                  setAmount(service.defaultPrice.toString());
                 }}
                 className={`p-2 sm:p-4 rounded-xl border ${
-                  selectedService?.id === service.id
+                  selectedService?.name === service.name
                     ? "border-blue-500"
                     : "border-white/10"
                 } hover:border-blue-500/50 transition-all duration-300`}
@@ -156,7 +145,7 @@ export default function AddSubscriptionModal({
           {isCustom && (
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-400 mb-1">
-                Service Name
+                Bill Name
               </label>
               <input
                 type="text"
@@ -166,7 +155,7 @@ export default function AddSubscriptionModal({
                 required
               />
               <label className="block text-sm font-medium text-gray-400 mt-3 mb-1">
-                Service Icon (optional)
+                Bill Icon (optional)
               </label>
               <input
                 type="file"
@@ -199,18 +188,14 @@ export default function AddSubscriptionModal({
 
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-400 mb-1">
-              Billing Cycle
+              Description (optional)
             </label>
-            <select
-              value={billingCycle}
-              onChange={(e) =>
-                setBillingCycle(e.target.value as "monthly" | "yearly")
-              }
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="w-full px-3 py-2 bg-gray-800 rounded-lg border border-white/10 text-white"
-            >
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-            </select>
+              rows={3}
+            />
           </div>
 
           <div className="flex justify-end">
@@ -222,7 +207,7 @@ export default function AddSubscriptionModal({
               }
               className="px-4 py-2 bg-blue-500/10 text-blue-400 rounded-full hover:bg-blue-500/20 transition-all duration-300 disabled:opacity-50"
             >
-              Add Subscription
+              Add Bill
             </button>
           </div>
         </form>

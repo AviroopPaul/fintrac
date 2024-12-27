@@ -8,6 +8,10 @@ import AddSubscriptionModal from "@/components/Subscriptions/AddSubscriptionModa
 import EditSubscriptionModal from "@/components/Subscriptions/EditSubscriptionModal";
 import { Subscription } from "@/types/subscription";
 import { popularServices } from "@/constants/subscriptions";
+import BillCard from "@/components/Bills/BillCard";
+import { Bill } from "@/types/bill";
+import AddBillModal from "@/components/Bills/AddBillModal";
+import EditBillModal from "@/components/Bills/EditBillModal";
 
 export default function SubscriptionsPage() {
   const { data: session } = useSession();
@@ -18,6 +22,7 @@ export default function SubscriptionsPage() {
     useState<Subscription | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [bills, setBills] = useState<Bill[]>([]);
 
   const [customImage, setCustomImage] = useState<File | null>(null);
   const [customImageUrl, setCustomImageUrl] = useState(
@@ -28,6 +33,10 @@ export default function SubscriptionsPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly"
   );
+
+  const [isAddingBill, setIsAddingBill] = useState(false);
+  const [isEditingBill, setIsEditingBill] = useState(false);
+  const [editingBill, setEditingBill] = useState<Bill | null>(null);
 
   const fetchSubscriptions = async () => {
     setIsLoading(true);
@@ -249,6 +258,166 @@ export default function SubscriptionsPage() {
     }, 0);
   };
 
+  const handleEditBill = (bill: Bill) => {
+    // TODO: Implement bill editing
+    console.log("Editing bill:", bill);
+  };
+
+  const handleDeleteBill = async (billId: string) => {
+    // TODO: Implement bill deletion
+    console.log("Deleting bill:", billId);
+  };
+
+  const handleAddBill = async (formData: {
+    name: string;
+    amount: string;
+    dueDate: Date;
+    category: string;
+    description?: string;
+    imageUrl: string;
+    customImage?: File | null;
+  }) => {
+    try {
+      let imageUrl = "/images/bills/default.png";
+
+      if (formData.customImage) {
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", formData.customImage);
+
+        try {
+          const uploadResponse = await fetch("/api/upload", {
+            method: "POST",
+            body: uploadFormData,
+          });
+
+          if (!uploadResponse.ok) {
+            throw new Error("Failed to upload image");
+          }
+
+          const { url } = await uploadResponse.json();
+          imageUrl = url;
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          alert("Failed to upload image. Using default image instead.");
+        }
+      }
+
+      const billData = {
+        name: formData.name,
+        amount: parseFloat(formData.amount),
+        dueDate: formData.dueDate,
+        category: formData.category,
+        description: formData.description,
+        imageUrl,
+      };
+
+      const response = await fetch("/api/bills", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(billData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to add bill");
+      }
+
+      // Fetch updated bills
+      await fetchBills();
+      setIsAddingBill(false);
+    } catch (error) {
+      console.error("Error adding bill:", error);
+      alert(error instanceof Error ? error.message : "Failed to add bill");
+    }
+  };
+
+  const fetchBills = async () => {
+    try {
+      const response = await fetch("/api/bills");
+      if (!response.ok) {
+        throw new Error("Failed to fetch bills");
+      }
+      const data = await response.json();
+      setBills(data);
+    } catch (error) {
+      console.error("Error fetching bills:", error);
+      setBills([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchBills();
+  }, []);
+
+  const handleUpdateBill = async (formData: {
+    name: string;
+    amount: string;
+    dueDate: Date;
+    category: string;
+    description?: string;
+    imageUrl: string;
+    customImage?: File | null;
+  }) => {
+    if (!editingBill?._id) return;
+
+    try {
+      let imageUrl = formData.imageUrl;
+
+      if (formData.customImage) {
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", formData.customImage);
+
+        try {
+          const uploadResponse = await fetch("/api/upload", {
+            method: "POST",
+            body: uploadFormData,
+          });
+
+          if (!uploadResponse.ok) {
+            throw new Error("Failed to upload image");
+          }
+
+          const { url } = await uploadResponse.json();
+          imageUrl = url;
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          alert("Failed to upload image. Using existing image instead.");
+        }
+      }
+
+      const billData = {
+        name: formData.name,
+        amount: parseFloat(formData.amount),
+        dueDate: formData.dueDate,
+        category: formData.category,
+        description: formData.description,
+        imageUrl,
+      };
+
+      const response = await fetch(`/api/bills/${editingBill._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(billData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update bill");
+      }
+
+      await fetchBills();
+      setIsEditingBill(false);
+      setEditingBill(null);
+    } catch (error) {
+      console.error("Error updating bill:", error);
+      alert(error instanceof Error ? error.message : "Failed to update bill");
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
@@ -307,6 +476,48 @@ export default function SubscriptionsPage() {
           setEditingSubscription(null);
         }}
         onUpdate={handleUpdate}
+      />
+
+      {/* Bills Section */}
+      <div className="mt-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+          <h2 className="text-2xl font-bold text-white">Bills</h2>
+          <button
+            onClick={() => setIsAddingBill(true)}
+            className="w-full sm:w-auto px-4 py-2 bg-blue-500/10 text-blue-400 rounded-full hover:bg-blue-500/20 transition-all duration-300"
+          >
+            Add Bill
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {bills.map((bill) => (
+            <BillCard
+              key={bill._id}
+              bill={bill}
+              onEdit={handleEditBill}
+              onDelete={handleDeleteBill}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Add Bill Modal */}
+      <AddBillModal
+        isOpen={isAddingBill}
+        onClose={() => setIsAddingBill(false)}
+        onSubmit={handleAddBill}
+      />
+
+      {/* Edit Bill Modal */}
+      <EditBillModal
+        bill={editingBill}
+        isOpen={isEditingBill}
+        onClose={() => {
+          setIsEditingBill(false);
+          setEditingBill(null);
+        }}
+        onUpdate={handleUpdateBill}
       />
     </div>
   );

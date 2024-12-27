@@ -1,3 +1,5 @@
+import { Service } from "@/types/subscription";
+
 export const DEFAULT_SERVICES: Service[] = [
   {
     id: "netflix",
@@ -26,7 +28,30 @@ export const DEFAULT_SERVICES: Service[] = [
   {
     id: "hotstar",
     name: "Disney+ Hotstar",
-    imageUrl: "/images/subscriptions/hotstar.png",
+    imageUrl: "/images/subscriptions/disney.png",
     defaultPrice: 299,
+  },
+];
+
+export const popularServices = [
+  {
+    name: "Netflix",
+    imageUrl: "/images/subscriptions/netflix.png",
+  },
+  {
+    name: "Spotify",
+    imageUrl: "/images/subscriptions/spotify.png",
+  },
+  {
+    name: "Amazon Prime",
+    imageUrl: "/images/subscriptions/prime.png",
+  },
+  {
+    name: "Disney+",
+    imageUrl: "/images/subscriptions/disney.png",
+  },
+  {
+    name: "YouTube Premium",
+    imageUrl: "/images/subscriptions/youtube.png",
   },
 ];
